@@ -357,54 +357,177 @@ function attachHistoryListeners() {
     });
 }
 
-// Export data
+// Export to PDF
 async function exportData() {
     const stats = calculateStats();
+    const { jsPDF } = window.jspdf;
 
-    // Generate CSV
-    const headers = ['Fecha', 'Lugar', 'Hora Inicio', 'Hora Fin', 'Vehículos',
-        'Actas Auto', 'Actas Moto', 'Retención Auto', 'Retención Moto',
-        'Alcohol Auto', 'Alcohol Moto', 'Ruido Auto', 'Ruido Moto', 'Máx Graduación'];
+    // Create PDF (A4 size)
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPosition = 20;
 
-    const rows = filteredOperativos.map(op => [
-        op.fecha || '',
-        op.lugar || '',
-        op.hora_inicio || '',
-        op.hora_fin || '',
-        op.vehiculos_controlados_total || 0,
-        op.actas_simples_auto || 0,
-        op.actas_simples_moto || 0,
-        op.retencion_doc_auto || 0,
-        op.retencion_doc_moto || 0,
-        op.alcoholemia_positiva_auto || 0,
-        op.alcoholemia_positiva_moto || 0,
-        op.actas_ruido_auto || 0,
-        op.actas_ruido_moto || 0,
-        op.maxima_graduacion_gl || 0
-    ]);
+    // Load and add logo
+    try {
+        const logoImg = await loadImage('img/logo-muni.png');
+        doc.addImage(logoImg, 'PNG', 15, 10, 40, 20);
+        yPosition = 40;
+    } catch (e) {
+        console.log('Logo not loaded:', e);
+    }
 
-    // Add summary row
-    rows.push([]);
-    rows.push(['RESUMEN']);
-    rows.push(['Total Vehículos', stats.total_vehiculos]);
-    rows.push(['Total Actas', stats.total_faltas]);
-    rows.push(['Total Alcoholemias', stats.total_alcoholemia]);
-    rows.push(['Tasa Positividad', `${stats.tasa_positividad}%`]);
+    // Title
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('INFORME DE CONTROL VEHICULAR', pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 10;
 
-    const csvContent = [headers, ...rows]
-        .map(row => row.map(cell => `"${cell}"`).join(','))
-        .join('\n');
+    // Date
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    const today = new Date().toLocaleDateString('es-AR', {
+        day: '2-digit', month: 'long', year: 'numeric'
+    });
+    doc.text(`Generado: ${today}`, pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 15;
+
+    // Summary Section
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('RESUMEN GENERAL', 15, yPosition);
+    yPosition += 8;
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+
+    const summaryData = [
+        ['Total Vehículos Controlados:', stats.total_vehiculos.toString()],
+        ['Total Actas/Faltas:', stats.total_faltas.toString()],
+        ['Alcoholemias Positivas:', stats.total_alcoholemia.toString()],
+        ['Tasa de Positividad:', `${stats.tasa_positividad}%`],
+        ['Operativos Registrados:', filteredOperativos.length.toString()]
+    ];
+
+    summaryData.forEach(([label, value]) => {
+        doc.text(label, 20, yPosition);
+        doc.setFont('helvetica', 'bold');
+        doc.text(value, 90, yPosition);
+        doc.setFont('helvetica', 'normal');
+        yPosition += 7;
+    });
+
+    yPosition += 10;
+
+    // Breakdown Section
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('DESGLOSE POR TIPO', 15, yPosition);
+    yPosition += 10;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+
+    // Table header
+    doc.setFillColor(100, 116, 139);
+    doc.rect(15, yPosition - 5, pageWidth - 30, 8, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.text('Tipo de Infracción', 20, yPosition);
+    doc.text('Autos', 100, yPosition);
+    doc.text('Motos', 130, yPosition);
+    doc.text('Total', 160, yPosition);
+    yPosition += 8;
+
+    doc.setTextColor(0, 0, 0);
+
+    // Calculate per-type totals
+    let actasAuto = 0, actasMoto = 0;
+    let retencionAuto = 0, retencionMoto = 0;
+    let alcoholAuto = 0, alcoholMoto = 0;
+    let ruidoAuto = 0, ruidoMoto = 0;
+
+    filteredOperativos.forEach(op => {
+        actasAuto += Number(op.actas_simples_auto) || 0;
+        actasMoto += Number(op.actas_simples_moto) || 0;
+        retencionAuto += Number(op.retencion_doc_auto) || 0;
+        retencionMoto += Number(op.retencion_doc_moto) || 0;
+        alcoholAuto += Number(op.alcoholemia_positiva_auto) || 0;
+        alcoholMoto += Number(op.alcoholemia_positiva_moto) || 0;
+        ruidoAuto += Number(op.actas_ruido_auto) || 0;
+        ruidoMoto += Number(op.actas_ruido_moto) || 0;
+    });
+
+    const tableRows = [
+        ['Actas Simples', actasAuto, actasMoto],
+        ['Retención Documentos', retencionAuto, retencionMoto],
+        ['Alcoholemia Positiva', alcoholAuto, alcoholMoto],
+        ['Ruido Molesto', ruidoAuto, ruidoMoto]
+    ];
+
+    tableRows.forEach(([tipo, autos, motos], idx) => {
+        if (idx % 2 === 0) {
+            doc.setFillColor(241, 245, 249);
+            doc.rect(15, yPosition - 5, pageWidth - 30, 7, 'F');
+        }
+        doc.text(tipo, 20, yPosition);
+        doc.text(autos.toString(), 100, yPosition);
+        doc.text(motos.toString(), 130, yPosition);
+        doc.text((autos + motos).toString(), 160, yPosition);
+        yPosition += 7;
+    });
+
+    yPosition += 15;
+
+    // Recent Operations
+    if (filteredOperativos.length > 0) {
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('ÚLTIMOS OPERATIVOS', 15, yPosition);
+        yPosition += 10;
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+
+        const recentOps = filteredOperativos.slice(0, 5);
+        recentOps.forEach((op, idx) => {
+            const fecha = op.fecha || 'Sin fecha';
+            const lugar = op.lugar || 'Sin ubicación';
+            const vehiculos = op.vehiculos_controlados_total || 0;
+            const alcohol = (Number(op.alcoholemia_positiva_auto) || 0) +
+                (Number(op.alcoholemia_positiva_moto) || 0);
+
+            doc.text(`${idx + 1}. ${fecha} - ${lugar}`, 20, yPosition);
+            doc.text(`Vehículos: ${vehiculos} | Alcoholemias: ${alcohol}`, 120, yPosition);
+            yPosition += 6;
+        });
+    }
+
+    // Footer
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.setFontSize(8);
+    doc.setTextColor(128, 128, 128);
+    doc.text('Sistema de Control de Tránsito - Municipalidad', pageWidth / 2, pageHeight - 10, { align: 'center' });
 
     // Download
-    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `operativos_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
+    doc.save(`informe_transito_${new Date().toISOString().split('T')[0]}.pdf`);
+    showToast('📄 PDF descargado', 'success');
+}
 
-    showToast('📥 CSV descargado', 'success');
+// Load image as base64
+function loadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = reject;
+        img.src = src;
+    });
 }
 
 // Setup clear all button
