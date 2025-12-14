@@ -1,7 +1,40 @@
 // Format date for display
 export function formatDate(dateStr) {
-    if (!dateStr) return '-';
-    const date = new Date(dateStr + 'T00:00:00');
+    if (!dateStr) return 'Sin fecha';
+
+    let date;
+
+    // Handle different date formats from Google Sheets
+    if (typeof dateStr === 'string') {
+        // Try standard format first (YYYY-MM-DD)
+        if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            date = new Date(dateStr + 'T12:00:00');
+        }
+        // Handle DD/MM/YYYY format
+        else if (dateStr.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
+            const [day, month, year] = dateStr.split('/');
+            date = new Date(year, month - 1, day, 12, 0, 0);
+        }
+        // Handle ISO string
+        else if (dateStr.includes('T')) {
+            date = new Date(dateStr);
+        }
+        // Fallback
+        else {
+            date = new Date(dateStr);
+        }
+    } else if (typeof dateStr === 'number') {
+        // Google Sheets serial date (days since Dec 30, 1899)
+        date = new Date((dateStr - 25569) * 86400 * 1000);
+    } else {
+        date = new Date(dateStr);
+    }
+
+    // Check if valid
+    if (isNaN(date.getTime())) {
+        return 'Sin fecha';
+    }
+
     return date.toLocaleDateString('es-AR', {
         day: '2-digit',
         month: 'short',

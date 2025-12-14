@@ -52,9 +52,29 @@
       <!-- Dashboard View -->
       <section id="dashboard-view" class="view active">
         <header class="view-header">
-          <h1>Dashboard</h1>
+          <h1>Dashboard de Control</h1>
           <p class="view-subtitle">Resumen de operativos</p>
         </header>
+
+        <!-- Toolbar -->
+        <div class="dashboard-toolbar">
+          <div class="toolbar-filters">
+            <select id="filter-date" class="filter-select">
+              <option value="all">📅 Todo</option>
+              <option value="today">Hoy</option>
+              <option value="7days">7 Días</option>
+              <option value="month">Este Mes</option>
+            </select>
+            <select id="filter-vehicle" class="filter-select">
+              <option value="all">🚗 Todos</option>
+              <option value="auto">Solo Autos</option>
+              <option value="moto">Solo Motos</option>
+            </select>
+          </div>
+          <button class="toolbar-btn" id="btn-export">
+            📥 Exportar
+          </button>
+        </div>
 
         <!-- KPI Cards -->
         <div class="kpi-grid">
@@ -73,10 +93,10 @@
             </div>
           </div>
           <div class="kpi-card kpi-warning">
-            <div class="kpi-icon">📋</div>
+            <div class="kpi-icon">🎫</div>
             <div class="kpi-content">
               <span class="kpi-value" id="kpi-actas">0</span>
-              <span class="kpi-label">Total Actas/Faltas</span>
+              <span class="kpi-label">Total Actas</span>
             </div>
           </div>
           <div class="kpi-card kpi-info">
@@ -108,11 +128,11 @@
         <div class="history-section">
           <div class="history-header">
             <h3 class="history-title">Últimos Operativos</h3>
-            <button class="btn btn-danger-outline btn-sm" id="btn-clear-all">
+            <button class="btn btn-danger-outline btn-sm" id="btn-clear-all" title="Eliminar todos los operativos">
               <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" />
               </svg>
-              Limpiar
+              Limpiar Todo
             </button>
           </div>
           <div class="history-list" id="history-list">
