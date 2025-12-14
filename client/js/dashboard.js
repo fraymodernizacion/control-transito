@@ -5,13 +5,28 @@ let infraccionesChart = null;
 let vehiculosChart = null;
 let allOperativos = [];
 let filteredOperativos = [];
-let currentFilters = { date: 'all', vehicle: 'all' };
+let currentFilters = { dateFrom: null, dateTo: null, vehicle: 'all' };
 
 // Initialize dashboard
 export async function initDashboard() {
     try {
         // Load all data
         allOperativos = await getOperativos();
+
+        // Set default date range (last 30 days)
+        const today = new Date();
+        const monthAgo = new Date();
+        monthAgo.setDate(monthAgo.getDate() - 30);
+
+        const dateFromInput = document.getElementById('filter-date-from');
+        const dateToInput = document.getElementById('filter-date-to');
+
+        if (dateFromInput && !dateFromInput.value) {
+            dateFromInput.value = monthAgo.toISOString().split('T')[0];
+        }
+        if (dateToInput && !dateToInput.value) {
+            dateToInput.value = today.toISOString().split('T')[0];
+        }
 
         // Apply filters
         applyFilters();
@@ -25,20 +40,22 @@ export async function initDashboard() {
 
 // Setup filter event listeners
 function setupFilterListeners() {
-    const dateFilter = document.getElementById('filter-date');
+    const dateFromInput = document.getElementById('filter-date-from');
+    const dateToInput = document.getElementById('filter-date-to');
     const vehicleFilter = document.getElementById('filter-vehicle');
     const exportBtn = document.getElementById('btn-export');
 
-    // Remove old listeners by replacing elements
-    if (!dateFilter.dataset.initialized) {
-        dateFilter.addEventListener('change', (e) => {
-            currentFilters.date = e.target.value;
-            applyFilters();
-        });
-        dateFilter.dataset.initialized = 'true';
+    if (dateFromInput && !dateFromInput.dataset.initialized) {
+        dateFromInput.addEventListener('change', applyFilters);
+        dateFromInput.dataset.initialized = 'true';
     }
 
-    if (!vehicleFilter.dataset.initialized) {
+    if (dateToInput && !dateToInput.dataset.initialized) {
+        dateToInput.addEventListener('change', applyFilters);
+        dateToInput.dataset.initialized = 'true';
+    }
+
+    if (vehicleFilter && !vehicleFilter.dataset.initialized) {
         vehicleFilter.addEventListener('change', (e) => {
             currentFilters.vehicle = e.target.value;
             applyFilters();
@@ -54,27 +71,20 @@ function setupFilterListeners() {
 
 // Apply current filters
 function applyFilters() {
-    filteredOperativos = allOperativos.filter(op => {
-        // Date filter
-        if (currentFilters.date !== 'all') {
-            const opDate = parseDate(op.fecha);
-            const now = new Date();
-            now.setHours(0, 0, 0, 0);
+    const dateFromInput = document.getElementById('filter-date-from');
+    const dateToInput = document.getElementById('filter-date-to');
+    const vehicleFilter = document.getElementById('filter-vehicle');
 
-            if (currentFilters.date === 'today') {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                if (opDate < today || opDate > new Date()) return false;
-            } else if (currentFilters.date === '7days') {
-                const weekAgo = new Date(now);
-                weekAgo.setDate(weekAgo.getDate() - 7);
-                if (opDate < weekAgo) return false;
-            } else if (currentFilters.date === 'month') {
-                const monthAgo = new Date(now);
-                monthAgo.setMonth(monthAgo.getMonth() - 1);
-                if (opDate < monthAgo) return false;
-            }
-        }
+    const dateFrom = dateFromInput?.value ? new Date(dateFromInput.value + 'T00:00:00') : null;
+    const dateTo = dateToInput?.value ? new Date(dateToInput.value + 'T23:59:59') : null;
+    currentFilters.vehicle = vehicleFilter?.value || 'all';
+
+    filteredOperativos = allOperativos.filter(op => {
+        const opDate = parseDate(op.fecha);
+
+        // Date range filter
+        if (dateFrom && opDate < dateFrom) return false;
+        if (dateTo && opDate > dateTo) return false;
 
         return true;
     });
@@ -362,16 +372,22 @@ async function exportData() {
     const stats = calculateStats();
     const { jsPDF } = window.jspdf;
 
+    // Get date range
+    const dateFromInput = document.getElementById('filter-date-from');
+    const dateToInput = document.getElementById('filter-date-to');
+    const dateFrom = dateFromInput?.value || 'Inicio';
+    const dateTo = dateToInput?.value || 'Fin';
+
     // Create PDF (A4 size)
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     let yPosition = 20;
 
-    // Load and add logo
+    // Load and add color logo
     try {
-        const logoImg = await loadImage('img/logo-muni.png');
-        doc.addImage(logoImg, 'PNG', 15, 10, 40, 20);
-        yPosition = 40;
+        const logoImg = await loadImage('img/logo-color.png');
+        doc.addImage(logoImg, 'PNG', 15, 10, 45, 22);
+        yPosition = 42;
     } catch (e) {
         console.log('Logo not loaded:', e);
     }
@@ -380,16 +396,23 @@ async function exportData() {
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
     doc.text('INFORME DE CONTROL VEHICULAR', pageWidth / 2, yPosition, { align: 'center' });
-    yPosition += 10;
+    yPosition += 8;
 
-    // Date
-    doc.setFontSize(10);
+    // Date range
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
+    doc.text(`Período: ${dateFrom} al ${dateTo}`, pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 6;
+
+    // Generation date
+    doc.setFontSize(9);
+    doc.setTextColor(128, 128, 128);
     const today = new Date().toLocaleDateString('es-AR', {
         day: '2-digit', month: 'long', year: 'numeric'
     });
     doc.text(`Generado: ${today}`, pageWidth / 2, yPosition, { align: 'center' });
-    yPosition += 15;
+    doc.setTextColor(0, 0, 0);
+    yPosition += 12;
 
     // Summary Section
     doc.setFontSize(14);
