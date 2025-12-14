@@ -16,7 +16,43 @@ export function initForm() {
 
 // Setup counter buttons
 function setupCounterButtons() {
-    // Large counter buttons
+    // Hero counter buttons (main vehicle counter)
+    document.querySelectorAll('.hero-btn[data-field]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const field = btn.dataset.field;
+            const action = btn.dataset.action;
+            const input = document.getElementById(field);
+            let value = parseInt(input.value) || 0;
+
+            if (action === 'plus') {
+                value++;
+            } else if (action === 'minus' && value > 0) {
+                value--;
+            }
+
+            input.value = value;
+        });
+    });
+
+    // Mini counter buttons (all card counters)
+    document.querySelectorAll('.counter-mini-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const field = btn.dataset.field;
+            const isPlus = btn.classList.contains('plus');
+            const input = document.getElementById(field);
+            let value = parseInt(input.value) || 0;
+
+            if (isPlus) {
+                value++;
+            } else if (value > 0) {
+                value--;
+            }
+
+            input.value = value;
+        });
+    });
+
+    // Legacy selectors for backward compatibility
     document.querySelectorAll('.counter-btn[data-field]').forEach(btn => {
         btn.addEventListener('click', () => {
             const field = btn.dataset.field;
@@ -31,16 +67,9 @@ function setupCounterButtons() {
             }
 
             input.value = value;
-
-            // Add visual feedback
-            btn.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                btn.style.transform = '';
-            }, 100);
         });
     });
 
-    // Mini counter buttons (sanctions grid)
     document.querySelectorAll('.counter-btn-mini').forEach(btn => {
         btn.addEventListener('click', () => {
             const field = btn.dataset.field;
@@ -55,12 +84,6 @@ function setupCounterButtons() {
             }
 
             input.value = value;
-
-            // Add visual feedback
-            btn.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                btn.style.transform = '';
-            }, 100);
         });
     });
 }
@@ -71,6 +94,13 @@ function setupFormSubmission() {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // Disable button while saving
+        const submitBtn = form.querySelector('.save-btn, .btn-primary');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.7';
+        }
 
         const formData = new FormData(form);
         const data = {
@@ -93,7 +123,7 @@ function setupFormSubmission() {
 
         try {
             await createOperativo(data);
-            showToast('✅ Operativo guardado exitosamente', 'success');
+            showToast('✅ Operativo guardado', 'success');
 
             // Reset form
             resetForm();
@@ -104,8 +134,14 @@ function setupFormSubmission() {
             // Refresh dashboard
             await initDashboard();
         } catch (error) {
-            showToast('❌ Error al guardar operativo', 'error');
+            showToast('❌ Error al guardar', 'error');
             console.error('Error:', error);
+        } finally {
+            // Re-enable button
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+            }
         }
     });
 }
@@ -122,6 +158,12 @@ function resetForm() {
     form.querySelectorAll('input[type="number"]').forEach(input => {
         input.value = '0';
     });
+
+    // Close details section if open
+    const details = form.querySelector('.form-details');
+    if (details) {
+        details.removeAttribute('open');
+    }
 }
 
 // Export reset function for external use
