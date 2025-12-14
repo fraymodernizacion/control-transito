@@ -12,30 +12,15 @@ export function initForm() {
 
     // Setup form submission
     setupFormSubmission();
+
+    // Initial summary update
+    updateSummary();
 }
 
 // Setup counter buttons
 function setupCounterButtons() {
-    // Hero counter buttons (main vehicle counter)
-    document.querySelectorAll('.hero-btn[data-field]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const field = btn.dataset.field;
-            const action = btn.dataset.action;
-            const input = document.getElementById(field);
-            let value = parseInt(input.value) || 0;
-
-            if (action === 'plus') {
-                value++;
-            } else if (action === 'minus' && value > 0) {
-                value--;
-            }
-
-            input.value = value;
-        });
-    });
-
-    // Mini counter buttons (all card counters)
-    document.querySelectorAll('.counter-mini-btn').forEach(btn => {
+    // Big counter buttons (vehicles)
+    document.querySelectorAll('.big-counter-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const field = btn.dataset.field;
             const isPlus = btn.classList.contains('plus');
@@ -49,28 +34,12 @@ function setupCounterButtons() {
             }
 
             input.value = value;
+            updateSummary();
         });
     });
 
-    // Legacy selectors for backward compatibility
-    document.querySelectorAll('.counter-btn[data-field]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const field = btn.dataset.field;
-            const action = btn.dataset.action;
-            const input = document.getElementById(field);
-            let value = parseInt(input.value) || 0;
-
-            if (action === 'plus') {
-                value++;
-            } else if (action === 'minus' && value > 0) {
-                value--;
-            }
-
-            input.value = value;
-        });
-    });
-
-    document.querySelectorAll('.counter-btn-mini').forEach(btn => {
+    // Mini counter buttons (infractions)
+    document.querySelectorAll('.mini-counter-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const field = btn.dataset.field;
             const isPlus = btn.classList.contains('plus');
@@ -84,23 +53,49 @@ function setupCounterButtons() {
             }
 
             input.value = value;
+            updateSummary();
         });
     });
+
+    // Listen for manual input changes
+    document.querySelectorAll('#operativo-form input[type="number"]').forEach(input => {
+        input.addEventListener('change', updateSummary);
+        input.addEventListener('input', updateSummary);
+    });
+}
+
+// Update summary in real-time
+function updateSummary() {
+    const getValue = (id) => parseInt(document.getElementById(id)?.value) || 0;
+
+    // Vehicles
+    const vehiculos = getValue('vehiculos_controlados_total');
+    document.getElementById('summary-vehiculos').textContent = vehiculos;
+
+    // Total faults
+    const faltas =
+        getValue('actas_simples_auto') + getValue('actas_simples_moto') +
+        getValue('retencion_doc_auto') + getValue('retencion_doc_moto') +
+        getValue('alcoholemia_positiva_auto') + getValue('alcoholemia_positiva_moto') +
+        getValue('actas_ruido_auto') + getValue('actas_ruido_moto');
+    document.getElementById('summary-faltas').textContent = faltas;
+
+    // Alcoholemia
+    const alcohol = getValue('alcoholemia_positiva_auto') + getValue('alcoholemia_positiva_moto');
+    document.getElementById('summary-alcohol').textContent = alcohol;
 }
 
 // Setup form submission
 function setupFormSubmission() {
     const form = document.getElementById('operativo-form');
+    const submitBtn = document.getElementById('submit-btn');
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Disable button while saving
-        const submitBtn = form.querySelector('.save-btn, .btn-primary');
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.style.opacity = '0.7';
-        }
+        // Show loading state
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
 
         const formData = new FormData(form);
         const data = {
@@ -137,11 +132,9 @@ function setupFormSubmission() {
             showToast('❌ Error al guardar', 'error');
             console.error('Error:', error);
         } finally {
-            // Re-enable button
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = '1';
-            }
+            // Remove loading state
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
         }
     });
 }
@@ -159,12 +152,9 @@ function resetForm() {
         input.value = '0';
     });
 
-    // Close details section if open
-    const details = form.querySelector('.form-details');
-    if (details) {
-        details.removeAttribute('open');
-    }
+    // Update summary
+    updateSummary();
 }
 
-// Export reset function for external use
+// Export reset function
 export { resetForm };
