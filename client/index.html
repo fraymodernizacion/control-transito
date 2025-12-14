@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="description" content="Sistema de Control de Tránsito - Registro de Operativos y Dashboard de Métricas">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <title>Control de Tránsito</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚦</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <div id="app">
+    <!-- Navigation -->
+    <nav class="nav">
+      <div class="nav-brand">
+        <span class="nav-icon">🚦</span>
+        <span class="nav-title">Control Tránsito</span>
+      </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-view="dashboard">
+          <svg class="nav-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+          </svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-tab" data-view="form">
+          <svg class="nav-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          <span>Nuevo</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Dashboard View -->
+      <section id="dashboard-view" class="view active">
+        <header class="view-header">
+          <h1>Dashboard</h1>
+          <p class="view-subtitle">Resumen de operativos</p>
+        </header>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card kpi-primary">
+            <div class="kpi-icon">🚗</div>
+            <div class="kpi-content">
+              <span class="kpi-value" id="kpi-vehiculos">0</span>
+              <span class="kpi-label">Vehículos Controlados</span>
+            </div>
+          </div>
+          <div class="kpi-card kpi-danger">
+            <div class="kpi-icon">🍺</div>
+            <div class="kpi-content">
+              <span class="kpi-value" id="kpi-alcoholemia">0</span>
+              <span class="kpi-label">Alcoholemias (+)</span>
+            </div>
+          </div>
+          <div class="kpi-card kpi-warning">
+            <div class="kpi-icon">📋</div>
+            <div class="kpi-content">
+              <span class="kpi-value" id="kpi-actas">0</span>
+              <span class="kpi-label">Total Actas/Faltas</span>
+            </div>
+          </div>
+          <div class="kpi-card kpi-info">
+            <div class="kpi-icon">📊</div>
+            <div class="kpi-content">
+              <span class="kpi-value" id="kpi-tasa">0%</span>
+              <span class="kpi-label">Tasa Positividad</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3 class="chart-title">Distribución de Infracciones</h3>
+            <div class="chart-container">
+              <canvas id="chart-infracciones"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">Faltas por Tipo de Vehículo</h3>
+            <div class="chart-container">
+              <canvas id="chart-vehiculos"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- History -->
+        <div class="history-section">
+          <div class="history-header">
+            <h3 class="history-title">Últimos Operativos</h3>
+            <button class="btn btn-danger-outline btn-sm" id="btn-clear-all">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" />
+              </svg>
+              Limpiar
+            </button>
+          </div>
+          <div class="history-list" id="history-list">
+            <div class="history-empty">
+              <span class="history-empty-icon">📭</span>
+              <p>No hay operativos registrados</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Form View -->
+      <section id="form-view" class="view">
+        <header class="view-header">
+          <h1>Nuevo Operativo</h1>
+          <p class="view-subtitle">Registro de control</p>
+        </header>
+
+        <form id="operativo-form" class="form">
+          <!-- Header Fields -->
+          <div class="form-section">
+            <h3 class="form-section-title">Datos del Operativo</h3>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="fecha">Fecha *</label>
+                <input type="date" id="fecha" name="fecha" required>
+              </div>
+
+              <div class="form-group">
+                <label for="lugar">Lugar</label>
+                <input type="text" id="lugar" name="lugar" placeholder="Av. Fiesta del Poncho...">
+              </div>
+
+              <div class="form-group">
+                <label for="hora_inicio">Hora Inicio</label>
+                <input type="time" id="hora_inicio" name="hora_inicio">
+              </div>
+
+              <div class="form-group">
+                <label for="hora_fin">Hora Fin</label>
+                <input type="time" id="hora_fin" name="hora_fin">
+              </div>
+
+              <div class="form-group form-group-full">
+                <label for="personal">Personal Afectado</label>
+                <input type="text" id="personal" name="personal" placeholder="Reparticiones...">
+              </div>
+            </div>
+          </div>
+
+          <!-- Vehiculos Controlados -->
+          <div class="form-section">
+            <h3 class="form-section-title">Control General</h3>
+            <div class="counter-single">
+              <span class="counter-label">Vehículos Controlados</span>
+              <div class="counter-controls">
+                <button type="button" class="counter-btn counter-btn-minus" data-field="vehiculos_controlados_total"
+                  data-action="minus">−</button>
+                <input type="number" id="vehiculos_controlados_total" name="vehiculos_controlados_total" value="0"
+                  min="0" class="counter-input">
+                <button type="button" class="counter-btn counter-btn-plus" data-field="vehiculos_controlados_total"
+                  data-action="plus">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sanciones Grid -->
+          <div class="form-section">
+            <h3 class="form-section-title">Sanciones</h3>
+
+            <div class="sanctions-grid">
+              <div class="sanctions-header">
+                <span></span>
+                <span class="sanctions-col-header">🚗 Autos</span>
+                <span class="sanctions-col-header">🏍️ Motos</span>
+              </div>
+
+              <!-- Actas Simples -->
+              <div class="sanctions-row">
+                <span class="sanctions-label">Actas Simples</span>
+                <div class="counter-mini">
+                  <button type="button" class="counter-btn-mini minus" data-field="actas_simples_auto">−</button>
+                  <input type="number" id="actas_simples_auto" name="actas_simples_auto" value="0" min="0">
+                  <button type="button" class="counter-btn-mini plus" data-field="actas_simples_auto">+</button>
+                </div>
+                <div class="counter-mini">
+                  <button type="button" class="counter-btn-mini minus" data-field="actas_simples_moto">−</button>
+                  <input type="number" id="actas_simples_moto" name="actas_simples_moto" value="0" min="0">
+                  <button type="button" class="counter-btn-mini plus" data-field="actas_simples_moto">+</button>
+                </div>
+              </div>
+
+              <!-- Retención Docs -->
+              <div class="sanctions-row">
+                <span class="sanctions-label">Retención Docs</span>
+                <div class="counter-mini">
+                  <button type="button" class="counter-btn-mini minus" data-field="retencion_doc_auto">−</button>
+                  <input type="number" id="retencion_doc_auto" name="retencion_doc_auto" value="0" min="0">
+                  <button type="button" class="counter-btn-mini plus" data-field="retencion_doc_auto">+</button>
+                </div>
+                <div class="counter-mini">
+                  <button type="button" class="counter-btn-mini minus" data-field="retencion_doc_moto">−</button>
+                  <input type="number" id="retencion_doc_moto" name="retencion_doc_moto" value="0" min="0">
+                  <button type="button" class="counter-btn-mini plus" data-field="retencion_doc_moto">+</button>
+                </div>
+              </div>
+
+              <!-- Alcoholemia Positiva -->
+              <div class="sanctions-row sanctions-row-highlight">
+                <span class="sanctions-label">Alcoholemia (+)</span>
+                <div class="counter-mini">
+                  <button type="button" class="counter-btn-mini minus" data-field="alcoholemia_positiva_auto">−</button>
+                  <input type="number" id="alcoholemia_positiva_auto" name="alcoholemia_positiva_auto" value="0"
+                    min="0">
+                  <button type="button" class="counter-btn-mini plus" data-field="alcoholemia_positiva_auto">+</button>
+                </div>
+                <div class="counter-mini">
+                  <button type="button" class="counter-btn-mini minus" data-field="alcoholemia_positiva_moto">−</button>
+                  <input type="number" id="alcoholemia_positiva_moto" name="alcoholemia_positiva_moto" value="0"
+                    min="0">
+                  <button type="button" class="counter-btn-mini plus" data-field="alcoholemia_positiva_moto">+</button>
+                </div>
+              </div>
+
+              <!-- Ruido Molesto -->
+              <div class="sanctions-row">
+                <span class="sanctions-label">Ruido Molesto</span>
+                <div class="counter-mini">
+                  <button type="button" class="counter-btn-mini minus" data-field="actas_ruido_auto">−</button>
+                  <input type="number" id="actas_ruido_auto" name="actas_ruido_auto" value="0" min="0">
+                  <button type="button" class="counter-btn-mini plus" data-field="actas_ruido_auto">+</button>
+                </div>
+                <div class="counter-mini">
+                  <button type="button" class="counter-btn-mini minus" data-field="actas_ruido_moto">−</button>
+                  <input type="number" id="actas_ruido_moto" name="actas_ruido_moto" value="0" min="0">
+                  <button type="button" class="counter-btn-mini plus" data-field="actas_ruido_moto">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alcoholemia Max -->
+          <div class="form-section">
+            <h3 class="form-section-title">Datos de Alcoholemia</h3>
+            <div class="form-group">
+              <label for="maxima_graduacion_gl">Máxima Graduación (g/L)</label>
+              <input type="number" id="maxima_graduacion_gl" name="maxima_graduacion_gl" value="0" min="0" max="5"
+                step="0.01" placeholder="0.00">
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
+              </svg>
+              Guardar Operativo
+            </button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+
+</html>

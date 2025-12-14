@@ -1,0 +1,20 @@
+{
+  "name": "transito-control",
+  "version": "1.0.0",
+  "description": "PWA para Control de Tránsito - Registro de Operativos y Dashboard",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "node server/index.js",
+    "client": "cd client && npx -y serve -p 3000",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "sql.js": "^1.11.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
