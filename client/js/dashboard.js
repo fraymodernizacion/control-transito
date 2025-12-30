@@ -366,14 +366,24 @@ function setupModalListeners() {
         overlay.addEventListener('click', closeDetailsModal);
 
         // Share button in modal
-        document.getElementById('btn-share-modal').addEventListener('click', async () => {
+        const shareBtn = document.getElementById('btn-share-modal');
+        shareBtn.addEventListener('click', async () => {
             const id = modal.dataset.currentId;
             const operativo = allOperativos.find(op => String(op.id) === String(id));
             if (operativo) {
                 const reportText = generateReportText(operativo);
                 const success = await copyToClipboard(reportText);
                 if (success) {
+                    const originalText = shareBtn.innerHTML;
+                    shareBtn.innerHTML = '<span>✅ ¡Copiado!</span>';
+                    shareBtn.classList.add('copied-wide');
+
                     showToast('📋 ¡Copiado para compartir!', 'success');
+
+                    setTimeout(() => {
+                        shareBtn.innerHTML = originalText;
+                        shareBtn.classList.remove('copied-wide');
+                    }, 2000);
                 }
             }
         });

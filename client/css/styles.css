@@ -1300,11 +1300,17 @@ input[type="number"] {
 }
 
 /* Copy button success animation */
-.history-btn.copy.copied {
+.history-btn.copy.copied,
+.copied-wide {
   background: var(--color-success) !important;
   border-color: var(--color-success) !important;
   color: white !important;
   animation: copySuccess 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.copied-wide {
+  background: var(--gradient-success) !important;
+  box-shadow: var(--shadow-glow-success) !important;
 }
 
 @keyframes copySuccess {
