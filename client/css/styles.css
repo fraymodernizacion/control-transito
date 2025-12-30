@@ -135,16 +135,30 @@ body::before {
    ======================================== */
 .nav {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 20px;
+  left: 15px;
+  right: 15px;
   z-index: 100;
-  padding: var(--space-sm) var(--space-md);
-  padding-bottom: calc(var(--space-sm) + var(--safe-bottom));
+  padding: 8px;
   background: var(--color-bg-glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  animation: navSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes navSlideUp {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .nav-brand {
@@ -154,12 +168,10 @@ body::before {
 .nav-tabs {
   display: flex;
   justify-content: center;
-  gap: var(--space-sm);
-  max-width: 280px;
+  gap: 8px;
+  max-width: 400px;
   margin: 0 auto;
-  background: var(--color-bg-tertiary);
-  padding: 6px;
-  border-radius: var(--radius-full);
+  padding: 4px;
 }
 
 .nav-tab {
@@ -190,8 +202,8 @@ body::before {
 }
 
 .nav-tab-icon {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
 }
 
 .nav-tab span {
@@ -237,18 +249,19 @@ body::before {
 }
 
 .view-header {
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-md);
   text-align: center;
+  padding: 0 var(--space-sm);
 }
 
 .view-header h1 {
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-xl);
   font-weight: 800;
   background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .view-subtitle {
@@ -427,38 +440,54 @@ body::before {
 }
 
 .history-item {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-md);
   padding: var(--space-md);
   background: var(--color-bg-tertiary);
   border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+@media (min-width: 400px) {
+  .history-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
 }
 
 .history-item-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   min-width: 0;
+  flex: 1;
 }
 
 .history-item-date {
   font-weight: 700;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
 }
 
 .history-item-lugar {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.history-item-lugar::before {
+  content: '📍';
+  font-size: 12px;
 }
 
 .history-item-stats {
   display: flex;
-  gap: var(--space-md);
+  gap: var(--space-lg);
+  padding: var(--space-xs) 0;
 }
 
 .history-stat {
@@ -466,16 +495,19 @@ body::before {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  min-width: 36px;
 }
 
 .history-stat-value {
   font-weight: 800;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
+  color: var(--color-primary-light);
 }
 
 .history-stat-label {
-  font-size: 14px;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
 }
 
 .history-item-actions {
@@ -682,7 +714,7 @@ body::before {
 .big-counter-btn.minus:active {
   background: rgba(239, 68, 68, 0.25);
   border-color: var(--color-danger);
-  transform: scale(0.9);
+  transform: scale(0.85);
 }
 
 .big-counter-btn.plus {
@@ -692,7 +724,7 @@ body::before {
 }
 
 .big-counter-btn.plus:active {
-  transform: scale(0.9);
+  transform: scale(0.85);
   box-shadow: none;
 }
 
@@ -767,7 +799,7 @@ body::before {
 .mini-counter-btn.plus:active {
   background: rgba(99, 102, 241, 0.25);
   border-color: var(--color-primary);
-  transform: scale(0.9);
+  transform: scale(0.85);
 }
 
 .mini-counter input {
@@ -842,13 +874,17 @@ body::before {
 .checkbox-item {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  padding: 12px var(--space-md);
+  justify-content: center;
+  text-align: center;
+  gap: var(--space-xs);
+  padding: 14px 10px;
   background: var(--color-bg-tertiary);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-base);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .checkbox-item:has(input:checked) {
@@ -857,10 +893,7 @@ body::before {
 }
 
 .checkbox-item input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-  accent-color: var(--color-primary);
-  cursor: pointer;
+  display: none;
 }
 
 .checkbox-label {
@@ -1028,20 +1061,33 @@ input[type="number"] {
    ======================================== */
 .dashboard-toolbar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-md);
   margin-bottom: var(--space-lg);
-  padding: var(--space-sm);
+  padding: var(--space-md);
   background: var(--color-bg-card);
   border-radius: var(--radius-xl);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+@media (min-width: 480px) {
+  .dashboard-toolbar {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
 .toolbar-filters {
   display: flex;
+  flex-direction: column;
   gap: var(--space-sm);
   flex: 1;
+}
+
+@media (min-width: 480px) {
+  .toolbar-filters {
+    flex-direction: row;
+  }
 }
 
 .filter-select {
@@ -1075,14 +1121,15 @@ input[type="number"] {
 }
 
 .filter-input {
-  padding: 8px 10px;
+  padding: 12px 14px;
   background: var(--color-bg-tertiary);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   color: var(--color-text-primary);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-family: inherit;
-  width: 115px;
+  flex: 1;
+  min-width: 0;
 }
 
 .filter-input:focus {
@@ -1116,6 +1163,13 @@ input[type="number"] {
 .toolbar-actions {
   display: flex;
   gap: var(--space-sm);
+  width: 100%;
+}
+
+@media (min-width: 480px) {
+  .toolbar-actions {
+    width: auto;
+  }
 }
 
 .toolbar-btn-secondary {

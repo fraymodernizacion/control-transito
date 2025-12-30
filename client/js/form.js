@@ -62,6 +62,13 @@ function setupCounterButtons() {
         input.addEventListener('change', updateSummary);
         input.addEventListener('input', updateSummary);
     });
+
+    // Checkbox selected class helper
+    document.querySelectorAll('.checkbox-item input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            checkbox.closest('.checkbox-item').classList.toggle('selected', checkbox.checked);
+        });
+    });
 }
 
 // Update summary in real-time

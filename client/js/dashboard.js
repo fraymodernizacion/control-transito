@@ -289,6 +289,12 @@ function renderCharts() {
             }
         }
     });
+
+    // Redraw charts on resize to fix mobile orientation changes
+    window.addEventListener('resize', () => {
+        if (infraccionesChart) infraccionesChart.resize();
+        if (vehiculosChart) vehiculosChart.resize();
+    }, { passive: true });
 }
 
 // Render history
