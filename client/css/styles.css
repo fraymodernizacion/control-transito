@@ -1190,6 +1190,25 @@ input[type="number"] {
   color: var(--color-text-primary);
 }
 
+.refresh-icon {
+  display: inline-block;
+  transition: transform 0.5s ease;
+}
+
+.refreshing .refresh-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .toolbar-btn-secondary:hover,
 .toolbar-btn-secondary.active {
   background: var(--gradient-primary);

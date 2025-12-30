@@ -75,17 +75,34 @@ function setupFilterListeners() {
     const todayBtn = document.getElementById('btn-today');
     if (todayBtn && !todayBtn.dataset.initialized) {
         todayBtn.addEventListener('click', () => {
-            const today = new Date().toISOString().split('T')[0];
+            const todayStr = new Date().toISOString().split('T')[0];
             const dateFromInput = document.getElementById('filter-date-from');
             const dateToInput = document.getElementById('filter-date-to');
 
-            if (dateFromInput) dateFromInput.value = today;
-            if (dateToInput) dateToInput.value = today;
+            if (dateFromInput) dateFromInput.value = todayStr;
+            if (dateToInput) dateToInput.value = todayStr;
 
             applyFilters();
             showToast('📅 Mostrando operativos de hoy', 'success');
         });
         todayBtn.dataset.initialized = 'true';
+    }
+
+    // Refresh button
+    const refreshBtn = document.getElementById('btn-refresh');
+    if (refreshBtn && !refreshBtn.dataset.initialized) {
+        refreshBtn.addEventListener('click', async () => {
+            refreshBtn.classList.add('refreshing');
+            try {
+                await initDashboard();
+                showToast('🔄 Datos actualizados', 'success');
+            } catch (error) {
+                showToast('Error al actualizar', 'error');
+            } finally {
+                setTimeout(() => refreshBtn.classList.remove('refreshing'), 1000);
+            }
+        });
+        refreshBtn.dataset.initialized = 'true';
     }
 }
 
