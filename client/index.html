@@ -70,9 +70,14 @@
               <option value="moto">Motos</option>
             </select>
           </div>
-          <button class="toolbar-btn" id="btn-export">
-            📄 PDF
-          </button>
+          <div class="toolbar-actions">
+            <button class="toolbar-btn toolbar-btn-secondary" id="btn-today">
+              📅 Hoy
+            </button>
+            <button class="toolbar-btn" id="btn-export">
+              📄 PDF
+            </button>
+          </div>
         </div>
 
         <!-- KPI Cards -->
@@ -177,10 +182,84 @@
                   <input type="time" id="hora_fin" name="hora_fin">
                 </div>
               </div>
-              <div class="input-row">
-                <label for="personal">Personal Afectado</label>
-                <input type="text" id="personal" name="personal" placeholder="Reparticiones que intervienen"
-                  inputmode="text">
+            </div>
+          </div>
+
+          <!-- SECTION: Áreas Involucradas -->
+          <div class="form-card">
+            <div class="form-card-header">
+              <span class="form-card-icon">🏛️</span>
+              <span class="form-card-title">Áreas Involucradas</span>
+            </div>
+            <div class="form-card-body">
+              <div class="checkbox-grid">
+                <label class="checkbox-item">
+                  <input type="checkbox" name="areas_involucradas" value="Dirección Provincial de Seguridad Vial">
+                  <span class="checkbox-label">Dir. Prov. Seguridad Vial</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="areas_involucradas" value="Seguridad Vial Nacional">
+                  <span class="checkbox-label">Seguridad Vial Nacional</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="areas_involucradas" value="Policía">
+                  <span class="checkbox-label">Policía</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="areas_involucradas" value="ARCAT">
+                  <span class="checkbox-label">ARCAT</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="areas_involucradas" value="Guardia Urbana Municipal">
+                  <span class="checkbox-label">Guardia Urbana Municipal</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="areas_involucradas" value="Tránsito">
+                  <span class="checkbox-label">Tránsito</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="areas_involucradas" value="Bromatología">
+                  <span class="checkbox-label">Bromatología</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION: Personal Afectado Municipal -->
+          <div class="form-card">
+            <div class="form-card-header">
+              <span class="form-card-icon">👮</span>
+              <span class="form-card-title">Personal Municipal Afectado</span>
+            </div>
+            <div class="form-card-body">
+              <div class="personal-grid">
+                <div class="personal-item">
+                  <span class="personal-label">Guardia Urbana</span>
+                  <div class="mini-counter">
+                    <button type="button" class="mini-counter-btn minus" data-field="personal_guardia_urbana">−</button>
+                    <input type="number" id="personal_guardia_urbana" name="personal_guardia_urbana" value="0" min="0"
+                      inputmode="numeric" pattern="[0-9]*">
+                    <button type="button" class="mini-counter-btn plus" data-field="personal_guardia_urbana">+</button>
+                  </div>
+                </div>
+                <div class="personal-item">
+                  <span class="personal-label">Tránsito</span>
+                  <div class="mini-counter">
+                    <button type="button" class="mini-counter-btn minus" data-field="personal_transito">−</button>
+                    <input type="number" id="personal_transito" name="personal_transito" value="0" min="0"
+                      inputmode="numeric" pattern="[0-9]*">
+                    <button type="button" class="mini-counter-btn plus" data-field="personal_transito">+</button>
+                  </div>
+                </div>
+                <div class="personal-item">
+                  <span class="personal-label">Bromatología</span>
+                  <div class="mini-counter">
+                    <button type="button" class="mini-counter-btn minus" data-field="personal_bromatologia">−</button>
+                    <input type="number" id="personal_bromatologia" name="personal_bromatologia" value="0" min="0"
+                      inputmode="numeric" pattern="[0-9]*">
+                    <button type="button" class="mini-counter-btn plus" data-field="personal_bromatologia">+</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -234,7 +313,7 @@
           <div class="form-card">
             <div class="form-card-header">
               <span class="form-card-icon">📄</span>
-              <span class="form-card-title">Retención Documentos</span>
+              <span class="form-card-title">Retención de documentación</span>
             </div>
             <div class="form-card-body">
               <div class="dual-counter">

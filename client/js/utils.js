@@ -67,26 +67,44 @@ export function showToast(message, type = 'success') {
 
 // Generate report text for sharing
 export function generateReportText(operativo) {
+    // Build personal string from new fields
+    const personalParts = [];
+    if (operativo.personal_guardia_urbana > 0) {
+        personalParts.push(`${operativo.personal_guardia_urbana} Guardia Urbana`);
+    }
+    if (operativo.personal_transito > 0) {
+        personalParts.push(`${operativo.personal_transito} Tránsito`);
+    }
+    if (operativo.personal_bromatologia > 0) {
+        personalParts.push(`${operativo.personal_bromatologia} Bromatología`);
+    }
+    const personalStr = personalParts.length > 0 ? personalParts.join(', ') : 'No especificado';
+
     const lines = [
         `📋 *REPORTE DE OPERATIVO*`,
         `━━━━━━━━━━━━━━━━━━`,
         `📅 Fecha: ${formatDate(operativo.fecha)}`,
         `📍 Lugar: ${operativo.lugar || 'No especificado'}`,
         `🕐 Horario: ${formatTime(operativo.hora_inicio) || '--:--'} - ${formatTime(operativo.hora_fin) || '--:--'}`,
-        `👮 Personal: ${operativo.personal || 'No especificado'}`,
+        ``,
+        `🏛️ *ÁREAS INVOLUCRADAS*`,
+        `${operativo.areas_involucradas || 'No especificadas'}`,
+        ``,
+        `👮 *PERSONAL MUNICIPAL*`,
+        `${personalStr}`,
         ``,
         `🚗 *CONTROL GENERAL*`,
         `• Vehículos Controlados: ${operativo.vehiculos_controlados_total}`,
         ``,
         `📝 *SANCIONES - AUTOS*`,
         `• Actas Simples: ${operativo.actas_simples_auto}`,
-        `• Retención Docs: ${operativo.retencion_doc_auto}`,
+        `• Retención de documentación: ${operativo.retencion_doc_auto}`,
         `• Alcoholemia (+): ${operativo.alcoholemia_positiva_auto}`,
         `• Ruido Molesto: ${operativo.actas_ruido_auto}`,
         ``,
         `🏍️ *SANCIONES - MOTOS*`,
         `• Actas Simples: ${operativo.actas_simples_moto}`,
-        `• Retención Docs: ${operativo.retencion_doc_moto}`,
+        `• Retención de documentación: ${operativo.retencion_doc_moto}`,
         `• Alcoholemia (+): ${operativo.alcoholemia_positiva_moto}`,
         `• Ruido Molesto: ${operativo.actas_ruido_moto}`,
     ];
@@ -98,16 +116,16 @@ export function generateReportText(operativo) {
     }
 
     const totalFaltas =
-        operativo.actas_simples_auto + operativo.actas_simples_moto +
-        operativo.retencion_doc_auto + operativo.retencion_doc_moto +
-        operativo.alcoholemia_positiva_auto + operativo.alcoholemia_positiva_moto +
-        operativo.actas_ruido_auto + operativo.actas_ruido_moto;
+        (operativo.actas_simples_auto || 0) + (operativo.actas_simples_moto || 0) +
+        (operativo.retencion_doc_auto || 0) + (operativo.retencion_doc_moto || 0) +
+        (operativo.alcoholemia_positiva_auto || 0) + (operativo.alcoholemia_positiva_moto || 0) +
+        (operativo.actas_ruido_auto || 0) + (operativo.actas_ruido_moto || 0);
 
     lines.push(``);
     lines.push(`━━━━━━━━━━━━━━━━━━`);
     lines.push(`📊 *TOTALES*`);
     lines.push(`• Total Faltas: ${totalFaltas}`);
-    lines.push(`• Alcoholemias (+): ${operativo.alcoholemia_positiva_auto + operativo.alcoholemia_positiva_moto}`);
+    lines.push(`• Alcoholemias (+): ${(operativo.alcoholemia_positiva_auto || 0) + (operativo.alcoholemia_positiva_moto || 0)}`);
 
     return lines.join('\n');
 }

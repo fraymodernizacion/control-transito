@@ -29,7 +29,8 @@ function getSheet() {
     if (!sheet) {
         sheet = ss.insertSheet(SHEET_NAME);
         const headers = [
-            'id', 'fecha', 'lugar', 'hora_inicio', 'hora_fin', 'personal',
+            'id', 'fecha', 'lugar', 'hora_inicio', 'hora_fin',
+            'areas_involucradas', 'personal_guardia_urbana', 'personal_transito', 'personal_bromatologia',
             'vehiculos_controlados_total',
             'actas_simples_auto', 'actas_simples_moto',
             'retencion_doc_auto', 'retencion_doc_moto',
@@ -205,7 +206,10 @@ function createOperativo(data) {
         data.lugar || '',
         data.hora_inicio || '',
         data.hora_fin || '',
-        data.personal || '',
+        data.areas_involucradas || '',
+        data.personal_guardia_urbana || 0,
+        data.personal_transito || 0,
+        data.personal_bromatologia || 0,
         data.vehiculos_controlados_total || 0,
         data.actas_simples_auto || 0,
         data.actas_simples_moto || 0,

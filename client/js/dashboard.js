@@ -1,4 +1,4 @@
-import { getStats, getOperativos, deleteOperativo, deleteAllOperativos, getOperativo } from './api.js';
+import { getStats, getOperativos, deleteOperativo, deleteAllOperativos } from './api.js';
 import { formatDate, showToast, generateReportText, copyToClipboard } from './utils.js';
 
 let infraccionesChart = null;
@@ -66,6 +66,23 @@ function setupFilterListeners() {
     if (exportBtn && !exportBtn.dataset.initialized) {
         exportBtn.addEventListener('click', exportData);
         exportBtn.dataset.initialized = 'true';
+    }
+
+    // Today button
+    const todayBtn = document.getElementById('btn-today');
+    if (todayBtn && !todayBtn.dataset.initialized) {
+        todayBtn.addEventListener('click', () => {
+            const today = new Date().toISOString().split('T')[0];
+            const dateFromInput = document.getElementById('filter-date-from');
+            const dateToInput = document.getElementById('filter-date-to');
+
+            if (dateFromInput) dateFromInput.value = today;
+            if (dateToInput) dateToInput.value = today;
+
+            applyFilters();
+            showToast('📅 Mostrando operativos de hoy', 'success');
+        });
+        todayBtn.dataset.initialized = 'true';
     }
 }
 
@@ -206,7 +223,7 @@ function renderCharts() {
     infraccionesChart = new Chart(infraccionesCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Actas Simples', 'Retención Docs', 'Alcoholemia (+)', 'Ruido Molesto'],
+            labels: ['Actas Simples', 'Retención de documentación', 'Alcoholemia (+)', 'Ruido Molesto'],
             datasets: [{
                 data: hasInfracciones
                     ? [stats.total_actas_simples, stats.total_retenciones, stats.total_alcoholemia, stats.total_ruidos]
@@ -336,15 +353,35 @@ function attachHistoryListeners() {
             e.stopPropagation();
             const id = btn.dataset.id;
             try {
-                const operativo = await getOperativo(id);
+                // Use cached data instead of API call
+                const operativo = allOperativos.find(op => String(op.id) === String(id));
+                if (!operativo) {
+                    showToast('Operativo no encontrado', 'error');
+                    return;
+                }
                 const reportText = generateReportText(operativo);
                 const success = await copyToClipboard(reportText);
                 if (success) {
-                    showToast('📋 Reporte copiado', 'success');
+                    // Add visual feedback animation
+                    btn.classList.add('copied');
+                    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <path d="M5 13l4 4L19 7"/>
+                    </svg>`;
+                    showToast('📋 ¡Copiado al portapapeles!', 'success');
+
+                    // Reset button after animation
+                    setTimeout(() => {
+                        btn.classList.remove('copied');
+                        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                        </svg>`;
+                    }, 1500);
                 } else {
                     showToast('Error al copiar', 'error');
                 }
             } catch (error) {
+                console.error('Copy error:', error);
                 showToast('Error al generar reporte', 'error');
             }
         });
@@ -383,13 +420,40 @@ async function exportData() {
     const pageWidth = doc.internal.pageSize.getWidth();
     let yPosition = 20;
 
-    // Load and add color logo
+    // Load and add color logo (maintaining aspect ratio)
     try {
         const logoImg = await loadImage('img/logo-color.png');
-        doc.addImage(logoImg, 'PNG', 15, 10, 45, 22);
-        yPosition = 42;
+        // Get image dimensions to maintain aspect ratio
+        const img = new Image();
+        img.src = logoImg;
+        const aspectRatio = img.width / img.height;
+        const logoHeight = 25;
+        const logoWidth = logoHeight * aspectRatio;
+        doc.addImage(logoImg, 'PNG', 15, 10, logoWidth, logoHeight);
+
+        // Add organization legend next to logo
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(80, 80, 80);
+        doc.text('Secretaría de Gobierno', pageWidth - 15, 18, { align: 'right' });
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Municipalidad de Fray Mamerto Esquiú', pageWidth - 15, 25, { align: 'right' });
+        doc.setTextColor(0, 0, 0);
+
+        yPosition = 45;
     } catch (e) {
         console.log('Logo not loaded:', e);
+        // Still add the legend even without logo
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(80, 80, 80);
+        doc.text('Secretaría de Gobierno', pageWidth - 15, 18, { align: 'right' });
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Municipalidad de Fray Mamerto Esquiú', pageWidth - 15, 25, { align: 'right' });
+        doc.setTextColor(0, 0, 0);
+        yPosition = 35;
     }
 
     // Title
@@ -481,7 +545,7 @@ async function exportData() {
 
     const tableRows = [
         ['Actas Simples', actasAuto, actasMoto],
-        ['Retención Documentos', retencionAuto, retencionMoto],
+        ['Retención de documentación', retencionAuto, retencionMoto],
         ['Alcoholemia Positiva', alcoholAuto, alcoholMoto],
         ['Ruido Molesto', ruidoAuto, ruidoMoto]
     ];
@@ -500,27 +564,51 @@ async function exportData() {
 
     yPosition += 15;
 
-    // Recent Operations
+    // Recent Operations with more details
     if (filteredOperativos.length > 0) {
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
-        doc.text('ÚLTIMOS OPERATIVOS', 15, yPosition);
+        doc.text('DETALLE DE OPERATIVOS', 15, yPosition);
         yPosition += 10;
 
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
-
-        const recentOps = filteredOperativos.slice(0, 5);
+        const recentOps = filteredOperativos.slice(0, 8);
         recentOps.forEach((op, idx) => {
+            // Check if we need a new page
+            if (yPosition > 260) {
+                doc.addPage();
+                yPosition = 20;
+            }
+
             const fecha = op.fecha || 'Sin fecha';
             const lugar = op.lugar || 'Sin ubicación';
+            const horario = `${op.hora_inicio || '--:--'} - ${op.hora_fin || '--:--'}`;
             const vehiculos = op.vehiculos_controlados_total || 0;
             const alcohol = (Number(op.alcoholemia_positiva_auto) || 0) +
                 (Number(op.alcoholemia_positiva_moto) || 0);
+            const graduacion = op.maxima_graduacion_gl || 0;
+            const areas = op.areas_involucradas || 'No especificadas';
 
+            // Operation header
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.setFillColor(241, 245, 249);
+            doc.rect(15, yPosition - 4, pageWidth - 30, 7, 'F');
             doc.text(`${idx + 1}. ${fecha} - ${lugar}`, 20, yPosition);
-            doc.text(`Vehículos: ${vehiculos} | Alcoholemias: ${alcohol}`, 120, yPosition);
-            yPosition += 6;
+            doc.setFont('helvetica', 'normal');
+            doc.text(`🕐 ${horario}`, pageWidth - 50, yPosition);
+            yPosition += 8;
+
+            // Details
+            doc.setFontSize(9);
+            doc.text(`Áreas: ${areas}`, 25, yPosition);
+            yPosition += 5;
+
+            let detailLine = `Vehículos: ${vehiculos} | Alcoholemias: ${alcohol}`;
+            if (graduacion > 0) {
+                detailLine += ` | Máx. Graduación: ${graduacion} g/L`;
+            }
+            doc.text(detailLine, 25, yPosition);
+            yPosition += 8;
         });
     }
 
@@ -528,7 +616,7 @@ async function exportData() {
     const pageHeight = doc.internal.pageSize.getHeight();
     doc.setFontSize(8);
     doc.setTextColor(128, 128, 128);
-    doc.text('Sistema de Control de Tránsito - Municipalidad', pageWidth / 2, pageHeight - 10, { align: 'center' });
+    doc.text('Sistema de Control de Tránsito - Secretaría de Gobierno - Municipalidad de Fray Mamerto Esquiú', pageWidth / 2, pageHeight - 10, { align: 'center' });
 
     // Download
     doc.save(`informe_transito_${new Date().toISOString().split('T')[0]}.pdf`);

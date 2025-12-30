@@ -98,12 +98,20 @@ function setupFormSubmission() {
         submitBtn.disabled = true;
 
         const formData = new FormData(form);
+
+        // Get selected areas as comma-separated string
+        const areasCheckboxes = form.querySelectorAll('input[name="areas_involucradas"]:checked');
+        const areasInvolucradas = Array.from(areasCheckboxes).map(cb => cb.value).join(', ');
+
         const data = {
             fecha: formData.get('fecha'),
             lugar: formData.get('lugar'),
             hora_inicio: formData.get('hora_inicio'),
             hora_fin: formData.get('hora_fin'),
-            personal: formData.get('personal'),
+            areas_involucradas: areasInvolucradas,
+            personal_guardia_urbana: parseInt(formData.get('personal_guardia_urbana')) || 0,
+            personal_transito: parseInt(formData.get('personal_transito')) || 0,
+            personal_bromatologia: parseInt(formData.get('personal_bromatologia')) || 0,
             vehiculos_controlados_total: parseInt(formData.get('vehiculos_controlados_total')) || 0,
             actas_simples_auto: parseInt(formData.get('actas_simples_auto')) || 0,
             actas_simples_moto: parseInt(formData.get('actas_simples_moto')) || 0,
