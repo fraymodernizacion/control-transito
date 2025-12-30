@@ -1,4 +1,4 @@
-import { initDashboard, setupClearAllButton } from './dashboard.js';
+import { initDashboard } from './dashboard.js';
 import { initForm } from './form.js';
 
 // App initialization
@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Initialize dashboard
     await initDashboard();
-    setupClearAllButton();
 
     // Initialize form
     initForm();

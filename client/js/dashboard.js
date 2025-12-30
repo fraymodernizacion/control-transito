@@ -33,6 +33,9 @@ export async function initDashboard() {
 
         // Setup filter listeners (only once)
         setupFilterListeners();
+
+        // Setup modal listeners (only once)
+        setupModalListeners();
     } catch (error) {
         console.error('Error loading dashboard:', error);
     }
@@ -352,8 +355,148 @@ function renderHistory() {
     attachHistoryListeners();
 }
 
+// Setup modal event listeners
+function setupModalListeners() {
+    const modal = document.getElementById('details-modal');
+    const closeBtn = document.getElementById('btn-close-details');
+    const overlay = modal.querySelector('.modal-overlay');
+
+    if (!modal.dataset.initialized) {
+        closeBtn.addEventListener('click', closeDetailsModal);
+        overlay.addEventListener('click', closeDetailsModal);
+
+        // Share button in modal
+        document.getElementById('btn-share-modal').addEventListener('click', async () => {
+            const id = modal.dataset.currentId;
+            const operativo = allOperativos.find(op => String(op.id) === String(id));
+            if (operativo) {
+                const reportText = generateReportText(operativo);
+                const success = await copyToClipboard(reportText);
+                if (success) {
+                    showToast('📋 ¡Copiado para compartir!', 'success');
+                }
+            }
+        });
+
+        modal.dataset.initialized = 'true';
+    }
+}
+
+// Open details modal
+function openDetailsModal(op) {
+    const modal = document.getElementById('details-modal');
+    const body = document.getElementById('details-body');
+    const title = document.getElementById('details-subtitle');
+
+    modal.dataset.currentId = op.id;
+    title.textContent = `${formatDate(op.fecha)} — ${op.lugar || 'Sin ubicación'}`;
+
+    // Prepare areas badges
+    const areas = (op.areas_involucradas || '').split(',').filter(a => a.trim());
+    const areasHtml = areas.length
+        ? `<div class="detail-badge-list">${areas.map(a => `<span class="detail-badge">${a.trim()}</span>`).join('')}</div>`
+        : '<span class="detail-value">No especificadas</span>';
+
+    // Build personal string
+    const personal = [];
+    if (op.personal_guardia_urbana > 0) personal.push(`${op.personal_guardia_urbana} Guardia Urbana`);
+    if (op.personal_transito > 0) personal.push(`${op.personal_transito} Tránsito`);
+    if (op.personal_bromatologia > 0) personal.push(`${op.personal_bromatologia} Bromatología`);
+    const personalStr = personal.join(', ') || 'Sin personal registrado';
+
+    const totalFaltas = (Number(op.actas_simples_auto) || 0) + (Number(op.actas_simples_moto) || 0) +
+        (Number(op.retencion_doc_auto) || 0) + (Number(op.retencion_doc_moto) || 0) +
+        (Number(op.alcoholemia_positiva_auto) || 0) + (Number(op.alcoholemia_positiva_moto) || 0) +
+        (Number(op.actas_ruido_auto) || 0) + (Number(op.actas_ruido_moto) || 0);
+
+    body.innerHTML = `
+        <div class="detail-grid">
+            <section class="detail-section">
+                <h3 class="detail-section-title">Información General</h3>
+                <div class="detail-card">
+                    <div class="detail-row">
+                        <span class="detail-label">Horario</span>
+                        <span class="detail-value">${op.hora_inicio || '--:--'} a ${op.hora_fin || '--:--'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Vehículos Controlados</span>
+                        <span class="detail-value highlight">${op.vehiculos_controlados_total || 0}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Total Infracciones</span>
+                        <span class="detail-value">${totalFaltas}</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="detail-section">
+                <h3 class="detail-section-title">Áreas y Personal</h3>
+                <div class="detail-card">
+                    <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                        <span class="detail-label">Áreas Involucradas</span>
+                        ${areasHtml}
+                    </div>
+                    <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                        <span class="detail-label">Personal Municipal</span>
+                        <span class="detail-value">${personalStr}</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="detail-section">
+                <h3 class="detail-section-title">Infracciones Detalladas</h3>
+                <div class="detail-card">
+                    <div class="detail-row">
+                        <span class="detail-label">Alcoholemias (+)</span>
+                        <span class="detail-value danger">${(Number(op.alcoholemia_positiva_auto) || 0) + (Number(op.alcoholemia_positiva_moto) || 0)}</span>
+                    </div>
+                    ${op.maxima_graduacion_gl > 0 ? `
+                    <div class="detail-row">
+                        <span class="detail-label">Máx. Graduación</span>
+                        <span class="detail-value danger">${op.maxima_graduacion_gl} g/L</span>
+                    </div>
+                    ` : ''}
+                    <div class="detail-row">
+                        <span class="detail-label">Actas Simples (A/M)</span>
+                        <span class="detail-value">${op.actas_simples_auto || 0} / ${op.actas_simples_moto || 0}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Retenciones (A/M)</span>
+                        <span class="detail-value">${op.retencion_doc_auto || 0} / ${op.retencion_doc_moto || 0}</span>
+                    </div>
+                     <div class="detail-row">
+                        <span class="detail-label">Ruidos Molestos (A/M)</span>
+                        <span class="detail-value">${op.actas_ruido_auto || 0} / ${op.actas_ruido_moto || 0}</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    `;
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent scroll
+}
+
+// Close details modal
+function closeDetailsModal() {
+    const modal = document.getElementById('details-modal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
 // Attach history event listeners
 function attachHistoryListeners() {
+    // Click on item to open details
+    document.querySelectorAll('.history-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const id = item.dataset.id;
+            const operativo = allOperativos.find(op => String(op.id) === String(id));
+            if (operativo) {
+                openDetailsModal(operativo);
+            }
+        });
+    });
+
     document.querySelectorAll('.history-btn.copy').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();
@@ -647,17 +790,3 @@ function loadImage(src) {
     });
 }
 
-// Setup clear all button
-export function setupClearAllButton() {
-    document.getElementById('btn-clear-all').addEventListener('click', async () => {
-        if (confirm('⚠️ ¿Eliminar TODOS los operativos? Esta acción no se puede deshacer.')) {
-            try {
-                await deleteAllOperativos();
-                showToast('🗑️ Todos los operativos eliminados', 'success');
-                await initDashboard();
-            } catch (error) {
-                showToast('Error al limpiar datos', 'error');
-            }
-        }
-    });
-}
