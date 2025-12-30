@@ -45,7 +45,16 @@ export function formatDate(dateStr) {
 // Format time for display
 export function formatTime(timeStr) {
     if (!timeStr) return '';
-    return timeStr.substring(0, 5);
+    const str = String(timeStr);
+
+    // Si es un string ISO (contiene 'T')
+    if (str.includes('T')) {
+        const timePart = str.split('T')[1];
+        return timePart ? timePart.substring(0, 5) : str.substring(0, 5);
+    }
+
+    // Formato estándar HH:mm:ss o similar
+    return str.substring(0, 5);
 }
 
 // Get today's date in YYYY-MM-DD format

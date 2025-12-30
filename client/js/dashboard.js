@@ -1,5 +1,5 @@
 import { getStats, getOperativos, deleteOperativo, deleteAllOperativos } from './api.js';
-import { formatDate, showToast, generateReportText, copyToClipboard } from './utils.js';
+import { formatDate, formatTime, showToast, generateReportText, copyToClipboard } from './utils.js';
 
 let infraccionesChart = null;
 let vehiculosChart = null;
@@ -416,7 +416,7 @@ function openDetailsModal(op) {
                 <div class="detail-card">
                     <div class="detail-row">
                         <span class="detail-label">Horario</span>
-                        <span class="detail-value">${op.hora_inicio || '--:--'} a ${op.hora_fin || '--:--'}</span>
+                        <span class="detail-value">${formatTime(op.hora_inicio) || '--:--'} a ${formatTime(op.hora_fin) || '--:--'}</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Vehículos Controlados</span>
