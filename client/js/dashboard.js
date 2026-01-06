@@ -757,7 +757,7 @@ async function exportData() {
 
             const fecha = op.fecha || 'Sin fecha';
             const lugar = op.lugar || 'Sin ubicación';
-            const horario = `${op.hora_inicio || '--:--'} - ${op.hora_fin || '--:--'}`;
+            const horario = `${formatTime(op.hora_inicio) || '--:--'} - ${formatTime(op.hora_fin) || '--:--'}`;
             const vehiculos = op.vehiculos_controlados_total || 0;
             const alcohol = (Number(op.alcoholemia_positiva_auto) || 0) +
                 (Number(op.alcoholemia_positiva_moto) || 0);

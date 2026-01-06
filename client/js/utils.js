@@ -42,18 +42,45 @@ export function formatDate(dateStr) {
     });
 }
 
-// Format time for display
+// Format time for display (Argentina timezone)
 export function formatTime(timeStr) {
     if (!timeStr) return '';
     const str = String(timeStr);
 
-    // Si es un string ISO (contiene 'T')
-    if (str.includes('T')) {
-        const timePart = str.split('T')[1];
-        return timePart ? timePart.substring(0, 5) : str.substring(0, 5);
+    // Si es un string ISO completo (contiene 'T' y zona horaria)
+    if (str.includes('T') && (str.includes('Z') || str.includes('+') || str.includes('-', 10))) {
+        try {
+            const date = new Date(str);
+            if (!isNaN(date.getTime())) {
+                // Formatear a hora argentina
+                return date.toLocaleTimeString('es-AR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                    timeZone: 'America/Argentina/Buenos_Aires'
+                });
+            }
+        } catch (e) {
+            // Fallback si falla el parsing
+        }
     }
 
-    // Formato estándar HH:mm:ss o similar
+    // Si es formato HH:mm o HH:mm:ss simple (ya está en hora local)
+    if (str.match(/^\d{1,2}:\d{2}(:\d{2})?$/)) {
+        return str.substring(0, 5);
+    }
+
+    // Si contiene 'T' pero no es ISO completo (solo tiene hora después de T)
+    if (str.includes('T')) {
+        const timePart = str.split('T')[1];
+        if (timePart) {
+            // Extraer solo HH:mm
+            const match = timePart.match(/^(\d{1,2}:\d{2})/);
+            return match ? match[1] : timePart.substring(0, 5);
+        }
+    }
+
+    // Fallback: intentar extraer los primeros 5 caracteres
     return str.substring(0, 5);
 }
 
