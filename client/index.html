@@ -149,6 +149,65 @@
                 </div>
               </div>
             </div>
+
+            <!-- Time & Day Analysis -->
+            <div class="charts-grid">
+              <div class="chart-card">
+                <h3 class="chart-title">🕐 Por Franja Horaria</h3>
+                <div class="chart-container">
+                  <canvas id="chart-horarios"></canvas>
+                </div>
+              </div>
+              <div class="chart-card">
+                <h3 class="chart-title">📅 Por Día de la Semana</h3>
+                <div class="chart-container">
+                  <canvas id="chart-dias-semana"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Areas & Comparative -->
+            <div class="charts-grid">
+              <div class="chart-card">
+                <h3 class="chart-title">🏛️ Áreas Más Activas</h3>
+                <div class="chart-container">
+                  <canvas id="chart-areas"></canvas>
+                </div>
+              </div>
+              <div class="chart-card">
+                <h3 class="chart-title">📊 Comparativa Mensual</h3>
+                <div class="chart-container">
+                  <canvas id="chart-comparativa"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Efficiency KPIs -->
+            <div class="efficiency-section">
+              <h3 class="section-title">⚡ Indicadores de Eficiencia</h3>
+              <div class="efficiency-grid">
+                <div class="efficiency-card">
+                  <span class="efficiency-icon">🚗</span>
+                  <span class="efficiency-value" id="eff-promedio-vehiculos">0</span>
+                  <span class="efficiency-label">Promedio Vehículos/Operativo</span>
+                </div>
+                <div class="efficiency-card">
+                  <span class="efficiency-icon">📋</span>
+                  <span class="efficiency-value" id="eff-ratio-infracciones">0%</span>
+                  <span class="efficiency-label">Ratio Infracciones/Vehículos</span>
+                </div>
+                <div class="efficiency-card efficiency-card-danger">
+                  <span class="efficiency-icon">🍺</span>
+                  <span class="efficiency-value" id="eff-max-graduacion">0</span>
+                  <span class="efficiency-label">Máx. Graduación (g/L)</span>
+                </div>
+                <div class="efficiency-card">
+                  <span class="efficiency-icon">📆</span>
+                  <span class="efficiency-value" id="eff-total-operativos">0</span>
+                  <span class="efficiency-label">Total Operativos</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- History -->

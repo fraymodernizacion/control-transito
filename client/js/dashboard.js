@@ -5,6 +5,10 @@ let infraccionesChart = null;
 let vehiculosChart = null;
 let vehiculosDiaChart = null;
 let alcoholDiaChart = null;
+let horariosChart = null;
+let diasSemanaChart = null;
+let areasChart = null;
+let comparativaChart = null;
 let allOperativos = [];
 let filteredOperativos = [];
 let currentFilters = { dateFrom: null, dateTo: null, vehicle: 'all' };
@@ -131,6 +135,7 @@ function applyFilters() {
     // Render everything with filtered data
     renderKPIs();
     renderCharts();
+    renderEfficiency();
     renderHistory();
 }
 
@@ -429,12 +434,152 @@ function renderCharts() {
         }
     });
 
+    // Get analysis data
+    const horarioData = getHorarioData();
+    const diaSemanaData = getDiaSemanaData();
+    const areasData = getAreasData();
+    const comparativaData = getComparativaData();
+
+    // Horarios Chart - Bar Chart
+    if (horariosChart) horariosChart.destroy();
+    const horariosCtx = document.getElementById('chart-horarios').getContext('2d');
+    horariosChart = new Chart(horariosCtx, {
+        type: 'bar',
+        data: {
+            labels: horarioData.labels,
+            datasets: [{
+                label: 'Operativos',
+                data: horarioData.operativos,
+                backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                borderRadius: 6
+            }, {
+                label: 'Alcoholemias',
+                data: horarioData.alcoholemias,
+                backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#94a3b8', padding: 8, font: { size: 10 }, usePointStyle: true }
+                }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b' } },
+                x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } }
+            }
+        }
+    });
+
+    // Días de Semana Chart - Horizontal Bar
+    if (diasSemanaChart) diasSemanaChart.destroy();
+    const diasSemanaCtx = document.getElementById('chart-dias-semana').getContext('2d');
+    diasSemanaChart = new Chart(diasSemanaCtx, {
+        type: 'bar',
+        data: {
+            labels: diaSemanaData.labels,
+            datasets: [{
+                label: 'Vehículos',
+                data: diaSemanaData.vehiculos,
+                backgroundColor: [
+                    'rgba(239, 68, 68, 0.7)',   // Dom - rojo
+                    'rgba(99, 102, 241, 0.7)',  // Lun
+                    'rgba(99, 102, 241, 0.7)',  // Mar
+                    'rgba(99, 102, 241, 0.7)',  // Mie
+                    'rgba(99, 102, 241, 0.7)',  // Jue
+                    'rgba(34, 197, 94, 0.7)',   // Vie - verde
+                    'rgba(245, 158, 11, 0.7)'   // Sab - naranja
+                ],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b' } },
+                y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+            }
+        }
+    });
+
+    // Áreas Chart - Horizontal Bar
+    if (areasChart) areasChart.destroy();
+    const areasCtx = document.getElementById('chart-areas').getContext('2d');
+    areasChart = new Chart(areasCtx, {
+        type: 'bar',
+        data: {
+            labels: areasData.labels.slice(0, 5),  // Top 5
+            datasets: [{
+                label: 'Participaciones',
+                data: areasData.counts.slice(0, 5),
+                backgroundColor: 'rgba(168, 85, 247, 0.7)',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b' } },
+                y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } }
+            }
+        }
+    });
+
+    // Comparativa Mensual Chart
+    if (comparativaChart) comparativaChart.destroy();
+    const comparativaCtx = document.getElementById('chart-comparativa').getContext('2d');
+    comparativaChart = new Chart(comparativaCtx, {
+        type: 'bar',
+        data: {
+            labels: comparativaData.labels,
+            datasets: [{
+                label: 'Vehículos',
+                data: comparativaData.vehiculos,
+                backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                borderRadius: 4
+            }, {
+                label: 'Infracciones',
+                data: comparativaData.infracciones,
+                backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#94a3b8', padding: 8, font: { size: 10 }, usePointStyle: true }
+                }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b' } },
+                x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+            }
+        }
+    });
+
     // Redraw charts on resize to fix mobile orientation changes
     window.addEventListener('resize', () => {
         if (infraccionesChart) infraccionesChart.resize();
         if (vehiculosChart) vehiculosChart.resize();
         if (vehiculosDiaChart) vehiculosDiaChart.resize();
         if (alcoholDiaChart) alcoholDiaChart.resize();
+        if (horariosChart) horariosChart.resize();
+        if (diasSemanaChart) diasSemanaChart.resize();
+        if (areasChart) areasChart.resize();
+        if (comparativaChart) comparativaChart.resize();
     }, { passive: true });
 }
 
@@ -470,6 +615,146 @@ function getDailyData() {
     const alcoholemias = sortedDates.map(date => dailyMap.get(date).alcoholemias);
 
     return { labels, vehiculos, alcoholemias };
+}
+
+// Get data grouped by time slot
+function getHorarioData() {
+    const slots = {
+        'Mañana (6-12)': { operativos: 0, alcoholemias: 0 },
+        'Tarde (12-18)': { operativos: 0, alcoholemias: 0 },
+        'Noche (18-24)': { operativos: 0, alcoholemias: 0 },
+        'Madrugada (0-6)': { operativos: 0, alcoholemias: 0 }
+    };
+
+    filteredOperativos.forEach(op => {
+        const horaStr = op.hora_inicio || '';
+        let hour = 12; // Default to afternoon
+
+        if (horaStr) {
+            const match = horaStr.match(/^(\d{1,2})/);
+            if (match) hour = parseInt(match[1]);
+        }
+
+        let slot;
+        if (hour >= 6 && hour < 12) slot = 'Mañana (6-12)';
+        else if (hour >= 12 && hour < 18) slot = 'Tarde (12-18)';
+        else if (hour >= 18 && hour < 24) slot = 'Noche (18-24)';
+        else slot = 'Madrugada (0-6)';
+
+        slots[slot].operativos++;
+        slots[slot].alcoholemias += (Number(op.alcoholemia_positiva_auto) || 0) +
+            (Number(op.alcoholemia_positiva_moto) || 0);
+    });
+
+    const labels = Object.keys(slots);
+    const operativos = labels.map(l => slots[l].operativos);
+    const alcoholemias = labels.map(l => slots[l].alcoholemias);
+
+    return { labels, operativos, alcoholemias };
+}
+
+// Get data grouped by day of week
+function getDiaSemanaData() {
+    const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    const counts = [0, 0, 0, 0, 0, 0, 0];
+
+    filteredOperativos.forEach(op => {
+        const dateObj = parseDate(op.fecha);
+        const dayIndex = dateObj.getDay();
+        counts[dayIndex] += Number(op.vehiculos_controlados_total) || 0;
+    });
+
+    return { labels: dias, vehiculos: counts };
+}
+
+// Get data grouped by area
+function getAreasData() {
+    const areaMap = new Map();
+
+    filteredOperativos.forEach(op => {
+        const areas = (op.areas_involucradas || '').split(',').map(a => a.trim()).filter(a => a);
+        areas.forEach(area => {
+            areaMap.set(area, (areaMap.get(area) || 0) + 1);
+        });
+    });
+
+    // Sort by count descending
+    const sorted = Array.from(areaMap.entries()).sort((a, b) => b[1] - a[1]);
+
+    return {
+        labels: sorted.map(([name]) => name.length > 20 ? name.substring(0, 18) + '...' : name),
+        counts: sorted.map(([, count]) => count)
+    };
+}
+
+// Get comparative data (current month vs previous month)
+function getComparativaData() {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+    const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+    let currentData = { vehiculos: 0, infracciones: 0 };
+    let prevData = { vehiculos: 0, infracciones: 0 };
+
+    allOperativos.forEach(op => {
+        const dateObj = parseDate(op.fecha);
+        const month = dateObj.getMonth();
+        const year = dateObj.getFullYear();
+
+        const vehiculos = Number(op.vehiculos_controlados_total) || 0;
+        const infracciones = (Number(op.actas_simples_auto) || 0) + (Number(op.actas_simples_moto) || 0) +
+            (Number(op.retencion_doc_auto) || 0) + (Number(op.retencion_doc_moto) || 0) +
+            (Number(op.alcoholemia_positiva_auto) || 0) + (Number(op.alcoholemia_positiva_moto) || 0) +
+            (Number(op.actas_ruido_auto) || 0) + (Number(op.actas_ruido_moto) || 0);
+
+        if (month === currentMonth && year === currentYear) {
+            currentData.vehiculos += vehiculos;
+            currentData.infracciones += infracciones;
+        } else if (month === prevMonth && year === prevYear) {
+            prevData.vehiculos += vehiculos;
+            prevData.infracciones += infracciones;
+        }
+    });
+
+    return {
+        labels: [monthNames[prevMonth], monthNames[currentMonth]],
+        vehiculos: [prevData.vehiculos, currentData.vehiculos],
+        infracciones: [prevData.infracciones, currentData.infracciones]
+    };
+}
+
+// Render efficiency KPIs
+function renderEfficiency() {
+    const totalOperativos = filteredOperativos.length;
+
+    let totalVehiculos = 0;
+    let totalInfracciones = 0;
+    let maxGraduacion = 0;
+
+    filteredOperativos.forEach(op => {
+        totalVehiculos += Number(op.vehiculos_controlados_total) || 0;
+
+        totalInfracciones += (Number(op.actas_simples_auto) || 0) + (Number(op.actas_simples_moto) || 0) +
+            (Number(op.retencion_doc_auto) || 0) + (Number(op.retencion_doc_moto) || 0) +
+            (Number(op.alcoholemia_positiva_auto) || 0) + (Number(op.alcoholemia_positiva_moto) || 0) +
+            (Number(op.actas_ruido_auto) || 0) + (Number(op.actas_ruido_moto) || 0);
+
+        const grad = Number(op.maxima_graduacion_gl) || 0;
+        if (grad > maxGraduacion) maxGraduacion = grad;
+    });
+
+    const promedioVehiculos = totalOperativos > 0 ? (totalVehiculos / totalOperativos).toFixed(1) : 0;
+    const ratioInfracciones = totalVehiculos > 0 ? ((totalInfracciones / totalVehiculos) * 100).toFixed(1) : 0;
+
+    document.getElementById('eff-promedio-vehiculos').textContent = promedioVehiculos;
+    document.getElementById('eff-ratio-infracciones').textContent = `${ratioInfracciones}%`;
+    document.getElementById('eff-max-graduacion').textContent = maxGraduacion.toFixed(2);
+    document.getElementById('eff-total-operativos').textContent = totalOperativos;
 }
 
 // Render history
