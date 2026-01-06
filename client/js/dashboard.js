@@ -3,6 +3,8 @@ import { formatDate, formatTime, showToast, generateReportText, copyToClipboard 
 
 let infraccionesChart = null;
 let vehiculosChart = null;
+let vehiculosDiaChart = null;
+let alcoholDiaChart = null;
 let allOperativos = [];
 let filteredOperativos = [];
 let currentFilters = { dateFrom: null, dateTo: null, vehicle: 'all' };
@@ -225,6 +227,8 @@ function renderCharts() {
     // Destroy existing charts
     if (infraccionesChart) infraccionesChart.destroy();
     if (vehiculosChart) vehiculosChart.destroy();
+    if (vehiculosDiaChart) vehiculosDiaChart.destroy();
+    if (alcoholDiaChart) alcoholDiaChart.destroy();
 
     const colors = {
         actas: '#3b82f6',
@@ -232,7 +236,9 @@ function renderCharts() {
         alcoholemia: '#ef4444',
         ruidos: '#f59e0b',
         autos: '#06b6d4',
-        motos: '#10b981'
+        motos: '#10b981',
+        primary: '#6366f1',
+        danger: '#ef4444'
     };
 
     // Infracciones Donut Chart
@@ -310,11 +316,160 @@ function renderCharts() {
         }
     });
 
+    // Prepare daily data for trend charts
+    const dailyData = getDailyData();
+
+    // Vehículos por Día - Line Chart
+    const vehiculosDiaCtx = document.getElementById('chart-vehiculos-dia').getContext('2d');
+    vehiculosDiaChart = new Chart(vehiculosDiaCtx, {
+        type: 'line',
+        data: {
+            labels: dailyData.labels,
+            datasets: [{
+                label: 'Vehículos',
+                data: dailyData.vehiculos,
+                borderColor: colors.primary,
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: colors.primary,
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                    titleColor: '#fff',
+                    bodyColor: '#94a3b8',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#64748b' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        color: '#94a3b8',
+                        font: { size: 10 },
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+
+    // Alcoholemias por Día - Line Chart
+    const alcoholDiaCtx = document.getElementById('chart-alcohol-dia').getContext('2d');
+    alcoholDiaChart = new Chart(alcoholDiaCtx, {
+        type: 'line',
+        data: {
+            labels: dailyData.labels,
+            datasets: [{
+                label: 'Alcoholemias (+)',
+                data: dailyData.alcoholemias,
+                borderColor: colors.danger,
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: colors.danger,
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                    titleColor: '#fff',
+                    bodyColor: '#94a3b8',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#64748b' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        color: '#94a3b8',
+                        font: { size: 10 },
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                }
+            }
+        }
+    });
+
     // Redraw charts on resize to fix mobile orientation changes
     window.addEventListener('resize', () => {
         if (infraccionesChart) infraccionesChart.resize();
         if (vehiculosChart) vehiculosChart.resize();
+        if (vehiculosDiaChart) vehiculosDiaChart.resize();
+        if (alcoholDiaChart) alcoholDiaChart.resize();
     }, { passive: true });
+}
+
+// Get daily aggregated data for trend charts
+function getDailyData() {
+    const dailyMap = new Map();
+
+    // Aggregate data by date
+    filteredOperativos.forEach(op => {
+        const dateObj = parseDate(op.fecha);
+        const dateKey = dateObj.toISOString().split('T')[0];
+
+        if (!dailyMap.has(dateKey)) {
+            dailyMap.set(dateKey, { vehiculos: 0, alcoholemias: 0 });
+        }
+
+        const day = dailyMap.get(dateKey);
+        day.vehiculos += Number(op.vehiculos_controlados_total) || 0;
+        day.alcoholemias += (Number(op.alcoholemia_positiva_auto) || 0) +
+            (Number(op.alcoholemia_positiva_moto) || 0);
+    });
+
+    // Sort by date and format for chart
+    const sortedDates = Array.from(dailyMap.keys()).sort();
+
+    // Format labels as short date (DD/MM)
+    const labels = sortedDates.map(date => {
+        const [year, month, day] = date.split('-');
+        return `${day}/${month}`;
+    });
+
+    const vehiculos = sortedDates.map(date => dailyMap.get(date).vehiculos);
+    const alcoholemias = sortedDates.map(date => dailyMap.get(date).alcoholemias);
+
+    return { labels, vehiculos, alcoholemias };
 }
 
 // Render history

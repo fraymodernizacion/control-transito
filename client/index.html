@@ -83,63 +83,84 @@
           </div>
         </div>
 
-        <!-- KPI Cards -->
-        <div class="kpi-grid">
-          <div class="kpi-card kpi-primary">
-            <div class="kpi-icon">🚗</div>
-            <div class="kpi-content">
-              <span class="kpi-value" id="kpi-vehiculos">0</span>
-              <span class="kpi-label">Vehículos Controlados</span>
+        <!-- KPI Cards + Charts + History wrapped for desktop layout -->
+        <div class="dashboard-content-wrapper">
+          <div class="dashboard-main">
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+              <div class="kpi-card kpi-primary">
+                <div class="kpi-icon">🚗</div>
+                <div class="kpi-content">
+                  <span class="kpi-value" id="kpi-vehiculos">0</span>
+                  <span class="kpi-label">Vehículos Controlados</span>
+                </div>
+              </div>
+              <div class="kpi-card kpi-danger">
+                <div class="kpi-icon">🍺</div>
+                <div class="kpi-content">
+                  <span class="kpi-value" id="kpi-alcoholemia">0</span>
+                  <span class="kpi-label">Alcoholemias (+)</span>
+                </div>
+              </div>
+              <div class="kpi-card kpi-warning">
+                <div class="kpi-icon">🎫</div>
+                <div class="kpi-content">
+                  <span class="kpi-value" id="kpi-actas">0</span>
+                  <span class="kpi-label">Total Actas</span>
+                </div>
+              </div>
+              <div class="kpi-card kpi-info">
+                <div class="kpi-icon">📊</div>
+                <div class="kpi-content">
+                  <span class="kpi-value" id="kpi-tasa">0%</span>
+                  <span class="kpi-label">Tasa Positividad</span>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="kpi-card kpi-danger">
-            <div class="kpi-icon">🍺</div>
-            <div class="kpi-content">
-              <span class="kpi-value" id="kpi-alcoholemia">0</span>
-              <span class="kpi-label">Alcoholemias (+)</span>
-            </div>
-          </div>
-          <div class="kpi-card kpi-warning">
-            <div class="kpi-icon">🎫</div>
-            <div class="kpi-content">
-              <span class="kpi-value" id="kpi-actas">0</span>
-              <span class="kpi-label">Total Actas</span>
-            </div>
-          </div>
-          <div class="kpi-card kpi-info">
-            <div class="kpi-icon">📊</div>
-            <div class="kpi-content">
-              <span class="kpi-value" id="kpi-tasa">0%</span>
-              <span class="kpi-label">Tasa Positividad</span>
-            </div>
-          </div>
-        </div>
 
-        <!-- Charts -->
-        <div class="charts-grid">
-          <div class="chart-card">
-            <h3 class="chart-title">Distribución de Infracciones</h3>
-            <div class="chart-container">
-              <canvas id="chart-infracciones"></canvas>
+            <!-- Charts -->
+            <div class="charts-grid">
+              <div class="chart-card">
+                <h3 class="chart-title">Distribución de Infracciones</h3>
+                <div class="chart-container">
+                  <canvas id="chart-infracciones"></canvas>
+                </div>
+              </div>
+              <div class="chart-card">
+                <h3 class="chart-title">Faltas por Tipo de Vehículo</h3>
+                <div class="chart-container">
+                  <canvas id="chart-vehiculos"></canvas>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="chart-card">
-            <h3 class="chart-title">Faltas por Tipo de Vehículo</h3>
-            <div class="chart-container">
-              <canvas id="chart-vehiculos"></canvas>
-            </div>
-          </div>
-        </div>
 
-        <!-- History -->
-        <div class="history-section">
-          <div class="history-header">
-            <h3 class="history-title">Últimos Operativos</h3>
+            <!-- Trend Charts -->
+            <div class="charts-grid charts-grid-trends">
+              <div class="chart-card chart-card-wide">
+                <h3 class="chart-title">📈 Vehículos Controlados por Día</h3>
+                <div class="chart-container chart-container-wide">
+                  <canvas id="chart-vehiculos-dia"></canvas>
+                </div>
+              </div>
+              <div class="chart-card chart-card-wide">
+                <h3 class="chart-title">🍺 Alcoholemias Positivas por Día</h3>
+                <div class="chart-container chart-container-wide">
+                  <canvas id="chart-alcohol-dia"></canvas>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="history-list" id="history-list">
-            <div class="history-empty">
-              <span class="history-empty-icon">📭</span>
-              <p>No hay operativos registrados</p>
+
+          <!-- History -->
+          <div class="history-section">
+            <div class="history-header">
+              <h3 class="history-title">Últimos Operativos</h3>
+            </div>
+            <div class="history-list" id="history-list">
+              <div class="history-empty">
+                <span class="history-empty-icon">📭</span>
+                <p>No hay operativos registrados</p>
+              </div>
             </div>
           </div>
         </div>
