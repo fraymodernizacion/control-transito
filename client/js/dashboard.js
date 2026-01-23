@@ -393,11 +393,14 @@ function attachHistoryListeners() {
             const id = btn.dataset.id;
             if (confirm('¿Eliminar este operativo?')) {
                 try {
+                    btn.classList.add('loading');
                     await deleteOperativo(id);
                     showToast('🗑️ Operativo eliminado', 'success');
                     await initDashboard();
                 } catch (error) {
                     showToast('Error al eliminar', 'error');
+                } finally {
+                    btn.classList.remove('loading');
                 }
             }
         });
