@@ -715,15 +715,14 @@ async function exportData() {
 
         const sortedOps = [...filteredOperativos].sort((a, b) => parseDate(b.fecha) - parseDate(a.fecha));
         sortedOps.forEach((op, idx) => {
-            if (yPosition > 260) {
-                doc.addPage();
-                yPosition = 20;
-            }
-
             const opDate = parseDate(op.fecha);
             const opYear = opDate.getFullYear();
             const fecha = `${formatDate(op.fecha, true)} ${opYear}`;
             const lugar = op.lugar || 'Sin ubicación';
+
+            // Prepare wrapped lines for title and details
+            const titleText = `${idx + 1}. ${fecha} - ${lugar}`;
+            const wrappedTitle = doc.splitTextToSize(titleText, pageWidth - 35);
 
             let alcohol = 0;
             let actas = 0;
@@ -740,19 +739,41 @@ async function exportData() {
             if (op.personal_bromatologia > 0) personalParts.push(`Br: ${op.personal_bromatologia}`);
             const personalStr = personalParts.length > 0 ? personalParts.join(', ') : '-';
 
+            const detailLine1 = `Horario: ${formatTime(op.hora_inicio)} a ${formatTime(op.hora_fin)} | Controlados: ${op.vehiculos_controlados_total || 0} | Actas: ${actas} | Retenciones: ${retenciones} | Alc(+): ${alcohol}${op.maxima_graduacion_gl > 0 ? ` (Máx: ${op.maxima_graduacion_gl} g/L)` : ''}`;
+            const detailLine2 = `Personal: ${personalStr} | Áreas: ${op.areas_involucradas || '-'}`;
+
+            const wrappedDetail2 = doc.splitTextToSize(detailLine2, pageWidth - 40);
+
+            // Dynamic page break check
+            const blockHeight = (wrappedTitle.length * 5) + (wrappedDetail2.length * 4) + 12;
+            if (yPosition + blockHeight > 280) {
+                doc.addPage();
+                yPosition = 20;
+            }
+
+            // Draw Operative Title (Bold)
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(10);
-            doc.text(`${idx + 1}. ${fecha} - ${lugar}`, 20, yPosition);
-            yPosition += 5;
+            wrappedTitle.forEach(line => {
+                doc.text(line, 20, yPosition);
+                yPosition += 5;
+            });
 
+            // Draw Details (Normal)
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(8);
-            const horario = `${formatTime(op.hora_inicio)} a ${formatTime(op.hora_fin)}`;
-            doc.text(`Horario: ${horario} | Controlados: ${op.vehiculos_controlados_total || 0} | Actas: ${actas} | Retenciones: ${retenciones} | Alc(+): ${alcohol}${op.maxima_graduacion_gl > 0 ? ` (Máx: ${op.maxima_graduacion_gl} g/L)` : ''}`, 25, yPosition);
-            yPosition += 4;
 
-            doc.text(`Personal: ${personalStr} | Áreas: ${op.areas_involucradas || '-'}`, 25, yPosition);
-            yPosition += 8;
+            // Line 1: Basic stats
+            doc.text(detailLine1, 25, yPosition);
+            yPosition += 4.5;
+
+            // Line 2: Personal and Areas (Wrapped)
+            wrappedDetail2.forEach(line => {
+                doc.text(line, 25, yPosition);
+                yPosition += 4;
+            });
+
+            yPosition += 4; // Spacer between operatives
         });
     }
 
