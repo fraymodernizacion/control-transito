@@ -133,15 +133,20 @@ function setupFormSubmission() {
         const areasCheckboxes = form.querySelectorAll('input[name="areas_involucradas"]:checked');
         const areasInvolucradas = Array.from(areasCheckboxes).map(cb => cb.value).join(', ');
 
+        const personal_gu = parseInt(formData.get('personal_guardia_urbana')) || 0;
+        const personal_tr = parseInt(formData.get('personal_transito')) || 0;
+        const personal_br = parseInt(formData.get('personal_bromatologia')) || 0;
+
         const data = {
             fecha: formData.get('fecha'),
             lugar: formData.get('lugar'),
             hora_inicio: formData.get('hora_inicio'),
             hora_fin: formData.get('hora_fin'),
             areas_involucradas: areasInvolucradas,
-            personal_guardia_urbana: parseInt(formData.get('personal_guardia_urbana')) || 0,
-            personal_transito: parseInt(formData.get('personal_transito')) || 0,
-            personal_bromatologia: parseInt(formData.get('personal_bromatologia')) || 0,
+            personal_guardia_urbana: personal_gu,
+            personal_transito: personal_tr,
+            personal_bromatologia: personal_br,
+            personal: personal_gu + personal_tr + personal_br,
             vehiculos_controlados_total: parseInt(formData.get('vehiculos_controlados_total')) || 0,
             maxima_graduacion_gl: parseFloat(formData.get('maxima_graduacion_gl')) || 0
         };
