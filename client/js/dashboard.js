@@ -1,4 +1,4 @@
-import { getStats, getOperativos, deleteOperativo, deleteAllOperativos, getOperativo } from './api.js';
+import { getStats, getOperativos, deleteOperativo, getOperativo } from './api.js';
 import { formatDate, showToast, generateReportText, copyToClipboard } from './utils.js';
 import { editOperativo } from './form.js';
 
@@ -354,10 +354,13 @@ function attachHistoryListeners() {
             e.stopPropagation();
             const id = btn.dataset.id;
             try {
+                btn.classList.add('loading');
                 const operativo = await getOperativo(id);
                 editOperativo(operativo);
             } catch (error) {
                 showToast('Error al cargar operativo', 'error');
+            } finally {
+                btn.classList.remove('loading');
             }
         });
     });
@@ -587,17 +590,4 @@ function loadImage(src) {
     });
 }
 
-// Setup clear all button
-export function setupClearAllButton() {
-    document.getElementById('btn-clear-all').addEventListener('click', async () => {
-        if (confirm('⚠️ ¿Eliminar TODOS los operativos? Esta acción no se puede deshacer.')) {
-            try {
-                await deleteAllOperativos();
-                showToast('🗑️ Todos los operativos eliminados', 'success');
-                await initDashboard();
-            } catch (error) {
-                showToast('Error al limpiar datos', 'error');
-            }
-        }
-    });
-}
+

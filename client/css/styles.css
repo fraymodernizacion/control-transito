@@ -1156,7 +1156,7 @@ body::before {
 
 /* Form Spacer */
 .form-spacer {
-  height: 20px;
+  height: 100px;
 }
 
 /* Hide number spinners */
@@ -1392,6 +1392,30 @@ input[type="number"] {
   opacity: 1;
   transform: translateY(0) scale(1);
   animation: toastPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.history-btn.loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.history-btn.loading svg {
+  visibility: hidden;
+}
+
+.history-btn.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes toastPop {
