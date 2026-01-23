@@ -172,10 +172,21 @@ function calculateStats() {
 function renderKPIs() {
     const stats = calculateStats();
 
-    document.getElementById('kpi-vehiculos').textContent = stats.total_vehiculos.toLocaleString();
-    document.getElementById('kpi-alcoholemia').textContent = stats.total_alcoholemia.toLocaleString();
-    document.getElementById('kpi-actas').textContent = stats.total_faltas.toLocaleString();
-    document.getElementById('kpi-tasa').textContent = `${stats.tasa_positividad}%`;
+    const elements = {
+        'kpi-vehiculos': stats.total_vehiculos.toLocaleString(),
+        'kpi-alcoholemia': stats.total_alcoholemia.toLocaleString(),
+        'kpi-actas': stats.total_faltas.toLocaleString(),
+        'kpi-tasa': `${stats.tasa_positividad}%`
+    };
+
+    Object.entries(elements).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.textContent = value;
+        } else {
+            console.warn(`Element with id "${id}" not found`);
+        }
+    });
 }
 
 // Render charts

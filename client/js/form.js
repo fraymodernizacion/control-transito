@@ -7,7 +7,12 @@ let editingId = null;
 // Initialize form
 export function initForm() {
     // Set default date to today
-    document.getElementById('fecha').value = getTodayDate();
+    const fechaEl = document.getElementById('fecha');
+    if (fechaEl) {
+        fechaEl.value = getTodayDate();
+    } else {
+        console.warn('Element with id "fecha" not found');
+    }
 
     // Setup counter buttons
     setupCounterButtons();
@@ -79,7 +84,6 @@ function updateSummary() {
 
     // Vehicles
     const vehiculos = getValue('vehiculos_controlados_total');
-    document.getElementById('summary-vehiculos').textContent = vehiculos;
 
     // Total faults
     const vehicleTypes = ['auto', 'moto', 'camion', 'camioneta', 'colectivo'];
@@ -95,8 +99,14 @@ function updateSummary() {
         alcohol += getValue(`alcoholemia_positiva_${vh}`);
     });
 
-    document.getElementById('summary-faltas').textContent = faltas;
-    document.getElementById('summary-alcohol').textContent = alcohol;
+    const safeUpdate = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    };
+
+    safeUpdate('summary-vehiculos', vehiculos);
+    safeUpdate('summary-faltas', faltas);
+    safeUpdate('summary-alcohol', alcohol);
 }
 
 // Setup form submission
