@@ -20,6 +20,15 @@ export function initForm() {
     // Setup form submission
     setupFormSubmission();
 
+    // Setup close button
+    const closeBtn = document.getElementById('form-close-btn');
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            resetForm();
+            document.querySelector('[data-view="dashboard"]').click();
+        };
+    }
+
     // Initial summary update
     updateSummary();
 }
@@ -225,6 +234,12 @@ export function editOperativo(operativo) {
         }
     });
 
+    // Update header text
+    const formTitle = document.getElementById('form-title');
+    const formSubtitle = document.getElementById('form-subtitle');
+    if (formTitle) formTitle.textContent = 'Editar Operativo';
+    if (formSubtitle) formSubtitle.textContent = `Editando operativo #${operativo.id}`;
+
     // Update submit button text
     const submitBtnText = document.querySelector('.submit-btn-text');
     if (submitBtnText) {
@@ -253,6 +268,12 @@ export function resetForm() {
     if (submitBtnText) {
         submitBtnText.textContent = '✓ Guardar Operativo';
     }
+
+    // Reset header text
+    const formTitle = document.getElementById('form-title');
+    const formSubtitle = document.getElementById('form-subtitle');
+    if (formTitle) formTitle.textContent = 'Nuevo Operativo';
+    if (formSubtitle) formSubtitle.textContent = 'Complete los datos del control';
 
     // Reset date to today
     document.getElementById('fecha').value = getTodayDate();

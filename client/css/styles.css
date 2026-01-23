@@ -250,8 +250,45 @@ body::before {
 
 .view-header {
   margin-bottom: var(--space-md);
-  text-align: center;
+  text-align: left;
   padding: 0 var(--space-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.view-header-content {
+  flex: 1;
+}
+
+.view-close-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-tertiary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  margin-left: var(--space-md);
+}
+
+.view-close-btn:hover {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  transform: translateY(-2px);
+}
+
+.view-close-btn:active {
+  transform: translateY(0) scale(0.95);
+}
+
+.view-close-btn svg {
+  width: 24px;
+  height: 24px;
 }
 
 .view-header h1 {

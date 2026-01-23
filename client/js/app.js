@@ -1,5 +1,5 @@
 import { initDashboard } from './dashboard.js?v=5';
-import { initForm } from './form.js?v=5';
+import { initForm, resetForm } from './form.js?v=5';
 
 // App initialization
 async function startApp() {
@@ -44,8 +44,13 @@ function initNavigation() {
     const views = document.querySelectorAll('.view');
 
     navTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
+        tab.addEventListener('click', (e) => {
             const viewId = tab.dataset.view;
+
+            // If clicking "Nuevo" tab manually, ensuring form is fresh
+            if (viewId === 'form' && e.isTrusted) {
+                resetForm();
+            }
 
             // Update active tab
             navTabs.forEach(t => t.classList.remove('active'));
@@ -53,7 +58,8 @@ function initNavigation() {
 
             // Update active view
             views.forEach(v => v.classList.remove('active'));
-            document.getElementById(`${viewId}-view`).classList.add('active');
+            const targetView = document.getElementById(`${viewId}-view`);
+            if (targetView) targetView.classList.add('active');
 
             // Refresh dashboard when switching to it
             if (viewId === 'dashboard') {

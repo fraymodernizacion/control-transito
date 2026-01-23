@@ -143,8 +143,15 @@
       <!-- Form View -->
       <section id="form-view" class="view">
         <header class="view-header">
-          <h1>Nuevo Operativo</h1>
-          <p class="view-subtitle">Complete los datos del control</p>
+          <div class="view-header-content">
+            <h1 id="form-title">Nuevo Operativo</h1>
+            <p class="view-subtitle" id="form-subtitle">Complete los datos del control</p>
+          </div>
+          <button class="view-close-btn" id="form-close-btn" title="Volver al dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
         </header>
 
         <form id="operativo-form" class="form">
