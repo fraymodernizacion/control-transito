@@ -296,9 +296,12 @@ function renderHistory() {
         return;
     }
 
-    const recentOperativos = filteredOperativos.slice(0, 10);
+    // Sort by date (newest first) before rendering
+    const sortedOperativos = [...filteredOperativos].sort((a, b) => {
+        return parseDate(b.fecha) - parseDate(a.fecha);
+    });
 
-    historyList.innerHTML = recentOperativos.map(op => {
+    historyList.innerHTML = sortedOperativos.map(op => {
         const vehicleTypes = ['auto', 'moto', 'camion', 'camioneta', 'colectivo'];
         let totalAlcohol = 0;
         vehicleTypes.forEach(vh => {
@@ -540,8 +543,8 @@ async function exportData() {
         doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
 
-        const recentOps = filteredOperativos.slice(0, 10);
-        recentOps.forEach((op, idx) => {
+        const sortedOps = [...filteredOperativos].sort((a, b) => parseDate(b.fecha) - parseDate(a.fecha));
+        sortedOps.forEach((op, idx) => {
             if (yPosition > 270) {
                 doc.addPage();
                 yPosition = 20;
