@@ -3,6 +3,9 @@ import { initForm } from './form.js';
 
 // App initialization
 document.addEventListener('DOMContentLoaded', async () => {
+    if (window.isAppInitialized) return;
+    window.isAppInitialized = true;
+
     // Initialize navigation
     initNavigation();
 

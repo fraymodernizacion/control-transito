@@ -12,9 +12,6 @@ let currentFilters = { dateFrom: null, dateTo: null, vehicle: 'all' };
 export async function initDashboard() {
     try {
         // Load all data
-        console.log('initDashboard started');
-        console.log('kpi-vehiculos exists:', !!document.getElementById('kpi-vehiculos'));
-        console.log('chart-infracciones exists:', !!document.getElementById('chart-infracciones'));
         allOperativos = await getOperativos();
 
         // Set default date range (last 30 days)
@@ -78,6 +75,10 @@ function setupFilterListeners() {
 
 // Apply current filters
 function applyFilters() {
+    if (!document.getElementById('kpi-vehiculos')) {
+        console.warn('Dashboard elements not found, skipping filters');
+        return;
+    }
     const dateFromInput = document.getElementById('filter-date-from');
     const dateToInput = document.getElementById('filter-date-to');
     const vehicleFilter = document.getElementById('filter-vehicle');
@@ -216,7 +217,12 @@ function renderCharts() {
     };
 
     // Infracciones Donut Chart
-    const infraccionesCtx = document.getElementById('chart-infracciones').getContext('2d');
+    const infraccionesEl = document.getElementById('chart-infracciones');
+    if (!infraccionesEl) {
+        console.warn('Canvas "chart-infracciones" not found');
+        return;
+    }
+    const infraccionesCtx = infraccionesEl.getContext('2d');
     const hasInfracciones = stats.total_actas_simples || stats.total_retenciones ||
         stats.total_alcoholemia || stats.total_ruidos;
 
@@ -255,7 +261,13 @@ function renderCharts() {
     });
 
     // Vehiculos Bar Chart with datalabels
-    const vehiculosCtx = document.getElementById('chart-vehiculos').getContext('2d');
+    // Vehículos Bar Chart
+    const vehiculosEl = document.getElementById('chart-vehiculos');
+    if (!vehiculosEl) {
+        console.warn('Canvas "chart-vehiculos" not found');
+        return;
+    }
+    const vehiculosCtx = vehiculosEl.getContext('2d');
 
     const chartData = [
         stats.total_faltas_auto,
@@ -425,13 +437,13 @@ function attachHistoryListeners() {
 
     // Detail click
     document.querySelectorAll('.history-item').forEach(item => {
-        item.addEventListener('click', async () => {
+        item.addEventListener('click', () => {
             const id = item.dataset.id;
-            try {
-                // Add a small delay for better UX if needed or just fetch
-                const operativo = await getOperativo(id);
+            const operativo = allOperativos.find(op => String(op.id) === String(id));
+            if (operativo) {
                 showDetail(operativo);
-            } catch (error) {
+            } else {
+                console.error(`Operativo not found for id: ${id}`, allOperativos);
                 showToast('Error al cargar detalle', 'error');
             }
         });
