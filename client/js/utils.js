@@ -28,6 +28,7 @@ export function formatDate(dateStr, short = false) {
         return date.toLocaleDateString('es-AR', {
             day: '2-digit',
             month: 'short',
+            timeZone: 'America/Argentina/Buenos_Aires'
         });
     }
 
@@ -35,7 +36,8 @@ export function formatDate(dateStr, short = false) {
         weekday: 'long',
         day: '2-digit',
         month: 'long',
-        year: 'numeric'
+        year: 'numeric',
+        timeZone: 'America/Argentina/Buenos_Aires'
     }).replace(/^\w/, (c) => c.toUpperCase());
 }
 
@@ -47,7 +49,12 @@ export function formatTime(timeStr) {
     if (typeof timeStr === 'string' && timeStr.includes('T')) {
         const date = new Date(timeStr);
         if (!isNaN(date.getTime())) {
-            return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
+            return date.toLocaleTimeString('es-AR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+                timeZone: 'America/Argentina/Buenos_Aires'
+            });
         }
     }
 

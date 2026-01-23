@@ -1,6 +1,6 @@
-import { createOperativo, updateOperativo } from './api.js';
-import { getTodayDate, showToast } from './utils.js';
-import { initDashboard } from './dashboard.js';
+import { createOperativo, updateOperativo } from './api.js?v=5';
+import { getTodayDate, showToast } from './utils.js?v=5';
+import { initDashboard } from './dashboard.js?v=5';
 
 let editingId = null;
 
@@ -73,7 +73,8 @@ function setupCounterButtons() {
     // Checkbox selected class helper
     document.querySelectorAll('.checkbox-item input[type="checkbox"]').forEach(checkbox => {
         checkbox.addEventListener('change', () => {
-            checkbox.closest('.checkbox-item').classList.toggle('selected', checkbox.checked);
+            const container = checkbox.closest('.checkbox-item');
+            if (container) container.classList.toggle('selected', checkbox.checked);
         });
     });
 }
@@ -114,10 +115,11 @@ function setupFormSubmission() {
     const form = document.getElementById('operativo-form');
     const submitBtn = document.getElementById('submit-btn');
 
-    if (!form) {
-        console.error('Element with id "operativo-form" not found');
+    if (!form || !submitBtn) {
+        console.warn('Form elements "operativo-form" or "submit-btn" not found');
         return;
     }
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -183,6 +185,7 @@ function setupFormSubmission() {
 export function editOperativo(operativo) {
     editingId = operativo.id;
     const form = document.getElementById('operativo-form');
+    if (!form) return;
 
     // Fill the form
     Object.keys(operativo).forEach(key => {
@@ -225,6 +228,7 @@ export function editOperativo(operativo) {
 // Reset form to default values
 export function resetForm() {
     const form = document.getElementById('operativo-form');
+    if (!form) return;
     form.reset();
 
     editingId = null;

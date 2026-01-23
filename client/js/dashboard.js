@@ -1,6 +1,6 @@
-import { getStats, getOperativos, deleteOperativo, getOperativo } from './api.js';
-import { formatDate, showToast, generateReportText, copyToClipboard } from './utils.js';
-import { editOperativo } from './form.js';
+import { getStats, getOperativos, deleteOperativo, getOperativo } from './api.js?v=5';
+import { formatDate, formatTime, showToast, generateReportText, copyToClipboard } from './utils.js?v=5';
+import { editOperativo } from './form.js?v=5';
 
 let infraccionesChart = null;
 let vehiculosChart = null;
@@ -8,8 +8,13 @@ let allOperativos = [];
 let filteredOperativos = [];
 let currentFilters = { dateFrom: null, dateTo: null, vehicle: 'all' };
 
+let isDashboardLoading = false;
+
 // Initialize dashboard
 export async function initDashboard() {
+    if (isDashboardLoading) return;
+    isDashboardLoading = true;
+
     try {
         // Load all data
         allOperativos = await getOperativos();
@@ -39,6 +44,8 @@ export async function initDashboard() {
         setupModalListeners();
     } catch (error) {
         console.error('Error loading dashboard:', error);
+    } finally {
+        isDashboardLoading = false;
     }
 }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'transito-v2';
+const CACHE_NAME = 'transito-v3';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',

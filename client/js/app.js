@@ -1,15 +1,27 @@
-import { initDashboard } from './dashboard.js';
-import { initForm } from './form.js';
+import { initDashboard } from './dashboard.js?v=5';
+import { initForm } from './form.js?v=5';
 
 // App initialization
-document.addEventListener('DOMContentLoaded', async () => {
+async function startApp() {
     if (window.isAppInitialized) return;
+
+    // Check if critical elements are present
+    const criticalElements = ['dashboard-view', 'form-view', 'fecha', 'operativo-form'];
+    const missingElements = criticalElements.filter(id => !document.getElementById(id));
+
+    if (missingElements.length > 0) {
+        console.warn('Waiting for elements to be ready:', missingElements);
+        setTimeout(startApp, 100); // Try again in 100ms
+        return;
+    }
+
     window.isAppInitialized = true;
+    console.log('DOM ready, starting initialization...');
 
     // Initialize navigation
     initNavigation();
 
-    // Initialize dashboard
+    // Initialize dashboard (await data load)
     await initDashboard();
 
     // Initialize form
@@ -17,7 +29,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Register service worker
     registerServiceWorker();
-});
+}
+
+// Start when DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startApp);
+} else {
+    startApp();
+}
 
 // Navigation handling
 function initNavigation() {
