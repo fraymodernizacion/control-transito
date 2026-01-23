@@ -144,7 +144,10 @@ function calculateStats() {
         total_faltas_camion: 0,
         total_faltas_camioneta: 0,
         total_faltas_colectivo: 0,
-        tasa_positividad: 0
+        tasa_positividad: 0,
+        total_personal_gu: 0,
+        total_personal_tr: 0,
+        total_personal_br: 0
     };
 
     const vehicleTypes = ['auto', 'moto', 'camion', 'camioneta', 'colectivo'];
@@ -170,6 +173,11 @@ function calculateStats() {
                 stats.total_ruidos += ruido;
             }
         });
+
+        // Add personal stats
+        stats.total_personal_gu += Number(op.personal_guardia_urbana) || 0;
+        stats.total_personal_tr += Number(op.personal_transito) || 0;
+        stats.total_personal_br += Number(op.personal_bromatologia) || 0;
     });
 
     stats.total_faltas = stats.total_actas_simples + stats.total_retenciones +
@@ -571,9 +579,11 @@ async function exportData() {
 
     // Load and add color logo
     try {
-        const logoImg = await loadImage('img/logo-color.png');
-        doc.addImage(logoImg, 'PNG', 15, 10, 45, 22);
-        yPosition = 42;
+        const logo = await loadImage('img/logo-color.png');
+        const logoW = 45;
+        const logoH = (logo.height * logoW) / logo.width;
+        doc.addImage(logo.data, 'PNG', 15, 10, logoW, logoH);
+        yPosition = 15 + logoH + 8;
     } catch (e) {
         console.log('Logo not loaded:', e);
     }
@@ -587,7 +597,7 @@ async function exportData() {
     // Date range
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Período: ${dateFrom} al ${dateTo}`, pageWidth / 2, yPosition, { align: 'center' });
+    doc.text(`Período: ${formatDate(dateFrom, true)} al ${formatDate(dateTo, true)}`, pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 6;
 
     // Generation date
@@ -614,7 +624,10 @@ async function exportData() {
         ['Total Actas/Faltas:', stats.total_faltas.toString()],
         ['Alcoholemias Positivas:', stats.total_alcoholemia.toString()],
         ['Tasa de Positividad:', `${stats.tasa_positividad}%`],
-        ['Operativos Registrados:', filteredOperativos.length.toString()]
+        ['Operativos Registrados:', filteredOperativos.length.toString()],
+        ['Personal G. Urbana (Total):', stats.total_personal_gu.toString()],
+        ['Personal Tránsito (Total):', stats.total_personal_tr.toString()],
+        ['Personal Bromatología (Total):', stats.total_personal_br.toString()]
     ];
 
     summaryData.forEach(([label, value]) => {
@@ -686,7 +699,7 @@ async function exportData() {
     if (filteredOperativos.length > 0) {
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
-        doc.text('ÚLTIMOS OPERATIVOS', 15, yPosition);
+        doc.text('OPERATIVOS', 15, yPosition);
         yPosition += 10;
 
         doc.setFontSize(9);
@@ -698,17 +711,23 @@ async function exportData() {
                 doc.addPage();
                 yPosition = 20;
             }
-            const fecha = op.fecha || 'Sin fecha';
+            const fecha = formatDate(op.fecha, true);
             const lugar = op.lugar || 'Sin ubicación';
             const vehiculos = op.vehiculos_controlados_total || 0;
 
             let alcohol = 0;
+            let actas = 0;
             vehicleTypes.forEach(vh => {
                 alcohol += (Number(op[`alcoholemia_positiva_${vh}`]) || 0);
+                actas += (Number(op[`actas_simples_${vh}`]) || 0) +
+                    (Number(op[`retencion_doc_${vh}`]) || 0) +
+                    (Number(op[`actas_ruido_${vh}`]) || 0);
             });
 
+            doc.setFont('helvetica', 'bold');
             doc.text(`${idx + 1}. ${fecha} - ${lugar}`, 20, yPosition);
-            doc.text(`Vehículos: ${vehiculos} | Alcoholemias: ${alcohol}`, 140, yPosition);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Controlados: ${vehiculos} | Actas: ${actas} | Alcohol: ${alcohol}`, 140, yPosition);
             yPosition += 6;
         });
     }
@@ -735,7 +754,11 @@ function loadImage(src) {
             canvas.height = img.height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0);
-            resolve(canvas.toDataURL('image/png'));
+            resolve({
+                data: canvas.toDataURL('image/png'),
+                width: img.width,
+                height: img.height
+            });
         };
         img.onerror = reject;
         img.src = src;
