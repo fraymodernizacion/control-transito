@@ -597,16 +597,24 @@ async function exportData() {
     // Date range
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Período: ${formatDate(dateFrom, true)} al ${formatDate(dateTo, true)}`, pageWidth / 2, yPosition, { align: 'center' });
+    const formatPeriodDate = (dStr) => {
+        if (!dStr || dStr === 'Inicio' || dStr === 'Fin') return dStr;
+        try {
+            const [y, m, day] = dStr.split('-');
+            const date = new Date(y, m - 1, day, 12, 0, 0);
+            return date.toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'America/Argentina/Buenos_Aires' });
+        } catch (e) { return dStr; }
+    };
+    doc.text(`Período: ${formatPeriodDate(dateFrom)} al ${formatPeriodDate(dateTo)}`, pageWidth / 2, yPosition, { align: 'center' });
     yPosition += 6;
 
     // Generation date
     doc.setFontSize(9);
     doc.setTextColor(128, 128, 128);
-    const today = new Date().toLocaleDateString('es-AR', {
-        day: '2-digit', month: 'long', year: 'numeric'
+    const todayStr = new Date().toLocaleDateString('es-AR', {
+        day: '2-digit', month: 'long', year: 'numeric', timeZone: 'America/Argentina/Buenos_Aires'
     });
-    doc.text(`Generado: ${today}`, pageWidth / 2, yPosition, { align: 'center' });
+    doc.text(`Generado: ${todayStr}`, pageWidth / 2, yPosition, { align: 'center' });
     doc.setTextColor(0, 0, 0);
     yPosition += 12;
 
@@ -707,28 +715,44 @@ async function exportData() {
 
         const sortedOps = [...filteredOperativos].sort((a, b) => parseDate(b.fecha) - parseDate(a.fecha));
         sortedOps.forEach((op, idx) => {
-            if (yPosition > 270) {
+            if (yPosition > 260) {
                 doc.addPage();
                 yPosition = 20;
             }
-            const fecha = formatDate(op.fecha, true);
+
+            const opDate = parseDate(op.fecha);
+            const opYear = opDate.getFullYear();
+            const fecha = `${formatDate(op.fecha, true)} ${opYear}`;
             const lugar = op.lugar || 'Sin ubicación';
-            const vehiculos = op.vehiculos_controlados_total || 0;
 
             let alcohol = 0;
             let actas = 0;
+            let retenciones = 0;
             vehicleTypes.forEach(vh => {
                 alcohol += (Number(op[`alcoholemia_positiva_${vh}`]) || 0);
-                actas += (Number(op[`actas_simples_${vh}`]) || 0) +
-                    (Number(op[`retencion_doc_${vh}`]) || 0) +
-                    (Number(op[`actas_ruido_${vh}`]) || 0);
+                actas += (Number(op[`actas_simples_${vh}`]) || 0) + (Number(op[`actas_ruido_${vh}`]) || 0);
+                retenciones += (Number(op[`retencion_doc_${vh}`]) || 0);
             });
 
+            const personalParts = [];
+            if (op.personal_guardia_urbana > 0) personalParts.push(`GU: ${op.personal_guardia_urbana}`);
+            if (op.personal_transito > 0) personalParts.push(`Tr: ${op.personal_transito}`);
+            if (op.personal_bromatologia > 0) personalParts.push(`Br: ${op.personal_bromatologia}`);
+            const personalStr = personalParts.length > 0 ? personalParts.join(', ') : '-';
+
             doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10);
             doc.text(`${idx + 1}. ${fecha} - ${lugar}`, 20, yPosition);
+            yPosition += 5;
+
             doc.setFont('helvetica', 'normal');
-            doc.text(`Controlados: ${vehiculos} | Actas: ${actas} | Alcohol: ${alcohol}`, 140, yPosition);
-            yPosition += 6;
+            doc.setFontSize(8);
+            const horario = `${formatTime(op.hora_inicio)} a ${formatTime(op.hora_fin)}`;
+            doc.text(`Horario: ${horario} | Controlados: ${op.vehiculos_controlados_total || 0} | Actas: ${actas} | Retenciones: ${retenciones} | Alc(+): ${alcohol}${op.maxima_graduacion_gl > 0 ? ` (Máx: ${op.maxima_graduacion_gl} g/L)` : ''}`, 25, yPosition);
+            yPosition += 4;
+
+            doc.text(`Personal: ${personalStr} | Áreas: ${op.areas_involucradas || '-'}`, 25, yPosition);
+            yPosition += 8;
         });
     }
 
