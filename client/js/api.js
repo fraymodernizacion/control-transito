@@ -77,6 +77,16 @@ export async function createOperativo(data) {
     return gFetch(`${API_BASE}?${params.toString()}`);
 }
 
+// Update existing operativo
+export async function updateOperativo(id, data) {
+    const params = new URLSearchParams();
+    params.append('action', 'update');
+    params.append('id', id);
+    params.append('data', JSON.stringify(data));
+
+    return gFetch(`${API_BASE}?${params.toString()}`);
+}
+
 // Delete single operativo
 export async function deleteOperativo(id) {
     return gFetch(`${API_BASE}?action=delete&id=${id}`);

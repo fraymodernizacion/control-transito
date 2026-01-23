@@ -1,5 +1,6 @@
 import { getStats, getOperativos, deleteOperativo, deleteAllOperativos, getOperativo } from './api.js';
 import { formatDate, showToast, generateReportText, copyToClipboard } from './utils.js';
+import { editOperativo } from './form.js';
 
 let infraccionesChart = null;
 let vehiculosChart = null;
@@ -126,39 +127,35 @@ function calculateStats() {
         total_ruidos: 0,
         total_faltas_auto: 0,
         total_faltas_moto: 0,
+        total_faltas_camion: 0,
+        total_faltas_camioneta: 0,
+        total_faltas_colectivo: 0,
         tasa_positividad: 0
     };
 
-    filteredOperativos.forEach(op => {
-        // Apply vehicle filter
-        const includeAuto = currentFilters.vehicle === 'all' || currentFilters.vehicle === 'auto';
-        const includeMoto = currentFilters.vehicle === 'all' || currentFilters.vehicle === 'moto';
+    const vehicleTypes = ['auto', 'moto', 'camion', 'camioneta', 'colectivo'];
 
+    filteredOperativos.forEach(op => {
         stats.total_vehiculos += Number(op.vehiculos_controlados_total) || 0;
 
-        if (includeAuto) {
-            stats.total_alcoholemia += Number(op.alcoholemia_positiva_auto) || 0;
-            stats.total_actas_simples += Number(op.actas_simples_auto) || 0;
-            stats.total_retenciones += Number(op.retencion_doc_auto) || 0;
-            stats.total_ruidos += Number(op.actas_ruido_auto) || 0;
-            stats.total_faltas_auto +=
-                (Number(op.actas_simples_auto) || 0) +
-                (Number(op.retencion_doc_auto) || 0) +
-                (Number(op.alcoholemia_positiva_auto) || 0) +
-                (Number(op.actas_ruido_auto) || 0);
-        }
+        vehicleTypes.forEach(vh => {
+            const isSelected = currentFilters.vehicle === 'all' || currentFilters.vehicle === vh;
 
-        if (includeMoto) {
-            stats.total_alcoholemia += Number(op.alcoholemia_positiva_moto) || 0;
-            stats.total_actas_simples += Number(op.actas_simples_moto) || 0;
-            stats.total_retenciones += Number(op.retencion_doc_moto) || 0;
-            stats.total_ruidos += Number(op.actas_ruido_moto) || 0;
-            stats.total_faltas_moto +=
-                (Number(op.actas_simples_moto) || 0) +
-                (Number(op.retencion_doc_moto) || 0) +
-                (Number(op.alcoholemia_positiva_moto) || 0) +
-                (Number(op.actas_ruido_moto) || 0);
-        }
+            const alcoholemia = Number(op[`alcoholemia_positiva_${vh}`]) || 0;
+            const actasSimples = Number(op[`actas_simples_${vh}`]) || 0;
+            const retencion = Number(op[`retencion_doc_${vh}`]) || 0;
+            const ruido = Number(op[`actas_ruido_${vh}`]) || 0;
+
+            const totalVh = alcoholemia + actasSimples + retencion + ruido;
+            stats[`total_faltas_${vh}`] += totalVh;
+
+            if (isSelected) {
+                stats.total_alcoholemia += alcoholemia;
+                stats.total_actas_simples += actasSimples;
+                stats.total_retenciones += retencion;
+                stats.total_ruidos += ruido;
+            }
+        });
     });
 
     stats.total_faltas = stats.total_actas_simples + stats.total_retenciones +
@@ -195,7 +192,10 @@ function renderCharts() {
         alcoholemia: '#ef4444',
         ruidos: '#f59e0b',
         autos: '#06b6d4',
-        motos: '#10b981'
+        motos: '#10b981',
+        camion: '#6366f1',
+        camioneta: '#a855f7',
+        colectivo: '#ec4899'
     };
 
     // Infracciones Donut Chart
@@ -206,7 +206,7 @@ function renderCharts() {
     infraccionesChart = new Chart(infraccionesCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Actas Simples', 'Retención Docs', 'Alcoholemia (+)', 'Ruido Molesto'],
+            labels: ['Actas Simples', 'Retención por doc', 'Alcoholemia (+)', 'Ruido Molesto'],
             datasets: [{
                 data: hasInfracciones
                     ? [stats.total_actas_simples, stats.total_retenciones, stats.total_alcoholemia, stats.total_ruidos]
@@ -240,14 +240,22 @@ function renderCharts() {
     // Vehiculos Bar Chart with datalabels
     const vehiculosCtx = document.getElementById('chart-vehiculos').getContext('2d');
 
+    const chartData = [
+        stats.total_faltas_auto,
+        stats.total_faltas_moto,
+        stats.total_faltas_camion,
+        stats.total_faltas_camioneta,
+        stats.total_faltas_colectivo
+    ];
+
     vehiculosChart = new Chart(vehiculosCtx, {
         type: 'bar',
         data: {
-            labels: ['Autos', 'Motos'],
+            labels: ['Autos', 'Motos', 'Camiones', 'Camionetas', 'Colectivos'],
             datasets: [{
                 label: 'Total Faltas',
-                data: [stats.total_faltas_auto, stats.total_faltas_moto],
-                backgroundColor: [colors.autos, colors.motos],
+                data: chartData,
+                backgroundColor: [colors.autos, colors.motos, colors.camion, colors.camioneta, colors.colectivo],
                 borderRadius: 8,
                 borderSkipped: false
             }]
@@ -267,7 +275,7 @@ function renderCharts() {
                 },
                 x: {
                     grid: { display: false },
-                    ticks: { color: '#94a3b8', font: { weight: 600 } }
+                    ticks: { color: '#94a3b8', font: { weight: 600 }, font: { size: 9 } }
                 }
             }
         }
@@ -291,8 +299,12 @@ function renderHistory() {
     const recentOperativos = filteredOperativos.slice(0, 10);
 
     historyList.innerHTML = recentOperativos.map(op => {
-        const totalAlcohol = (Number(op.alcoholemia_positiva_auto) || 0) +
-            (Number(op.alcoholemia_positiva_moto) || 0);
+        const vehicleTypes = ['auto', 'moto', 'camion', 'camioneta', 'colectivo'];
+        let totalAlcohol = 0;
+        vehicleTypes.forEach(vh => {
+            totalAlcohol += (Number(op[`alcoholemia_positiva_${vh}`]) || 0);
+        });
+
         return `
       <div class="history-item" data-id="${op.id}">
         <div class="history-item-info">
@@ -310,6 +322,12 @@ function renderHistory() {
           </div>
         </div>
         <div class="history-item-actions">
+          <button class="history-btn edit" title="Modificar operativo" data-id="${op.id}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+          </button>
           <button class="history-btn copy" title="Copiar reporte" data-id="${op.id}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
@@ -331,6 +349,19 @@ function renderHistory() {
 
 // Attach history event listeners
 function attachHistoryListeners() {
+    document.querySelectorAll('.history-btn.edit').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            try {
+                const operativo = await getOperativo(id);
+                editOperativo(operativo);
+            } catch (error) {
+                showToast('Error al cargar operativo', 'error');
+            }
+        });
+    });
+
     document.querySelectorAll('.history-btn.copy').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();
@@ -447,54 +478,50 @@ async function exportData() {
     doc.text('DESGLOSE POR TIPO', 15, yPosition);
     yPosition += 10;
 
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
 
     // Table header
     doc.setFillColor(100, 116, 139);
     doc.rect(15, yPosition - 5, pageWidth - 30, 8, 'F');
     doc.setTextColor(255, 255, 255);
-    doc.text('Tipo de Infracción', 20, yPosition);
-    doc.text('Autos', 100, yPosition);
-    doc.text('Motos', 130, yPosition);
-    doc.text('Total', 160, yPosition);
+    doc.text('Categoría', 20, yPosition);
+    doc.text('Autos', 70, yPosition);
+    doc.text('Motos', 95, yPosition);
+    doc.text('Camiones', 120, yPosition);
+    doc.text('Camionetas', 145, yPosition);
+    doc.text('Colectivos', 175, yPosition);
     yPosition += 8;
 
     doc.setTextColor(0, 0, 0);
 
-    // Calculate per-type totals
-    let actasAuto = 0, actasMoto = 0;
-    let retencionAuto = 0, retencionMoto = 0;
-    let alcoholAuto = 0, alcoholMoto = 0;
-    let ruidoAuto = 0, ruidoMoto = 0;
-
-    filteredOperativos.forEach(op => {
-        actasAuto += Number(op.actas_simples_auto) || 0;
-        actasMoto += Number(op.actas_simples_moto) || 0;
-        retencionAuto += Number(op.retencion_doc_auto) || 0;
-        retencionMoto += Number(op.retencion_doc_moto) || 0;
-        alcoholAuto += Number(op.alcoholemia_positiva_auto) || 0;
-        alcoholMoto += Number(op.alcoholemia_positiva_moto) || 0;
-        ruidoAuto += Number(op.actas_ruido_auto) || 0;
-        ruidoMoto += Number(op.actas_ruido_moto) || 0;
-    });
-
-    const tableRows = [
-        ['Actas Simples', actasAuto, actasMoto],
-        ['Retención Documentos', retencionAuto, retencionMoto],
-        ['Alcoholemia Positiva', alcoholAuto, alcoholMoto],
-        ['Ruido Molesto', ruidoAuto, ruidoMoto]
+    const vehicleTypes = ['auto', 'moto', 'camion', 'camioneta', 'colectivo'];
+    const categories = [
+        { id: 'actas_simples', label: 'Actas Simples' },
+        { id: 'retencion_doc', label: 'Retención por doc' },
+        { id: 'alcoholemia_positiva', label: 'Alcoholemia (+)' },
+        { id: 'actas_ruido', label: 'Ruido Molesto' }
     ];
 
-    tableRows.forEach(([tipo, autos, motos], idx) => {
+    categories.forEach((cat, idx) => {
         if (idx % 2 === 0) {
             doc.setFillColor(241, 245, 249);
             doc.rect(15, yPosition - 5, pageWidth - 30, 7, 'F');
         }
-        doc.text(tipo, 20, yPosition);
-        doc.text(autos.toString(), 100, yPosition);
-        doc.text(motos.toString(), 130, yPosition);
-        doc.text((autos + motos).toString(), 160, yPosition);
+
+        doc.text(cat.label, 20, yPosition);
+
+        let startX = 70;
+        vehicleTypes.forEach(vh => {
+            let count = 0;
+            filteredOperativos.forEach(op => {
+                count += Number(op[`${cat.id}_${vh}`]) || 0;
+            });
+            doc.text(count.toString(), startX, yPosition);
+            startX += 25;
+            if (vh === 'camioneta') startX += 5; // Extra space for Camionetas label offset
+        });
+
         yPosition += 7;
     });
 
@@ -510,16 +537,23 @@ async function exportData() {
         doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
 
-        const recentOps = filteredOperativos.slice(0, 5);
+        const recentOps = filteredOperativos.slice(0, 10);
         recentOps.forEach((op, idx) => {
+            if (yPosition > 270) {
+                doc.addPage();
+                yPosition = 20;
+            }
             const fecha = op.fecha || 'Sin fecha';
             const lugar = op.lugar || 'Sin ubicación';
             const vehiculos = op.vehiculos_controlados_total || 0;
-            const alcohol = (Number(op.alcoholemia_positiva_auto) || 0) +
-                (Number(op.alcoholemia_positiva_moto) || 0);
+
+            let alcohol = 0;
+            vehicleTypes.forEach(vh => {
+                alcohol += (Number(op[`alcoholemia_positiva_${vh}`]) || 0);
+            });
 
             doc.text(`${idx + 1}. ${fecha} - ${lugar}`, 20, yPosition);
-            doc.text(`Vehículos: ${vehiculos} | Alcoholemias: ${alcohol}`, 120, yPosition);
+            doc.text(`Vehículos: ${vehiculos} | Alcoholemias: ${alcohol}`, 140, yPosition);
             yPosition += 6;
         });
     }

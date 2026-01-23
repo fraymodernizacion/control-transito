@@ -715,19 +715,22 @@ body::before {
 }
 
 /* Mini Counters (Infractions) */
-.dual-counter {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-lg);
-}
-
-.dual-counter-col {
+.dual-counter,
+.quad-counter {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-sm);
+  gap: var(--space-md);
 }
 
+.counter-item,
+.dual-counter-col {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.counter-label,
 .dual-counter-label {
   font-size: var(--font-size-sm);
   font-weight: 600;

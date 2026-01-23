@@ -78,18 +78,45 @@ export function generateReportText(operativo) {
         `🚗 *CONTROL GENERAL*`,
         `• Vehículos Controlados: ${operativo.vehiculos_controlados_total}`,
         ``,
-        `📝 *SANCIONES - AUTOS*`,
-        `• Actas Simples: ${operativo.actas_simples_auto}`,
-        `• Retención Docs: ${operativo.retencion_doc_auto}`,
-        `• Alcoholemia (+): ${operativo.alcoholemia_positiva_auto}`,
-        `• Ruido Molesto: ${operativo.actas_ruido_auto}`,
+        `🚗 *SANCIONES - AUTOS*`,
+        `• Actas Simples: ${operativo.actas_simples_auto || 0}`,
+        `• Retención por doc: ${operativo.retencion_doc_auto || 0}`,
+        `• Alcoholemia (+): ${operativo.alcoholemia_positiva_auto || 0}`,
+        `• Ruido Molesto: ${operativo.actas_ruido_auto || 0}`,
         ``,
         `🏍️ *SANCIONES - MOTOS*`,
-        `• Actas Simples: ${operativo.actas_simples_moto}`,
-        `• Retención Docs: ${operativo.retencion_doc_moto}`,
-        `• Alcoholemia (+): ${operativo.alcoholemia_positiva_moto}`,
-        `• Ruido Molesto: ${operativo.actas_ruido_moto}`,
+        `• Actas Simples: ${operativo.actas_simples_moto || 0}`,
+        `• Retención por doc: ${operativo.retencion_doc_moto || 0}`,
+        `• Alcoholemia (+): ${operativo.alcoholemia_positiva_moto || 0}`,
+        `• Ruido Molesto: ${operativo.actas_ruido_moto || 0}`,
     ];
+
+    if (operativo.actas_simples_camion || operativo.retencion_doc_camion || operativo.alcoholemia_positiva_camion || operativo.actas_ruido_camion) {
+        lines.push(``);
+        lines.push(`🚚 *SANCIONES - CAMIONES*`);
+        lines.push(`• Actas Simples: ${operativo.actas_simples_camion || 0}`);
+        lines.push(`• Retención por doc: ${operativo.retencion_doc_camion || 0}`);
+        lines.push(`• Alcoholemia (+): ${operativo.alcoholemia_positiva_camion || 0}`);
+        lines.push(`• Ruido Molesto: ${operativo.actas_ruido_camion || 0}`);
+    }
+
+    if (operativo.actas_simples_camioneta || operativo.retencion_doc_camioneta || operativo.alcoholemia_positiva_camioneta || operativo.actas_ruido_camioneta) {
+        lines.push(``);
+        lines.push(`🛻 *SANCIONES - CAMIONETAS*`);
+        lines.push(`• Actas Simples: ${operativo.actas_simples_camioneta || 0}`);
+        lines.push(`• Retención por doc: ${operativo.retencion_doc_camioneta || 0}`);
+        lines.push(`• Alcoholemia (+): ${operativo.alcoholemia_positiva_camioneta || 0}`);
+        lines.push(`• Ruido Molesto: ${operativo.actas_ruido_camioneta || 0}`);
+    }
+
+    if (operativo.actas_simples_colectivo || operativo.retencion_doc_colectivo || operativo.alcoholemia_positiva_colectivo || operativo.actas_ruido_colectivo) {
+        lines.push(``);
+        lines.push(`🚌 *SANCIONES - COLECTIVOS*`);
+        lines.push(`• Actas Simples: ${operativo.actas_simples_colectivo || 0}`);
+        lines.push(`• Retención por doc: ${operativo.retencion_doc_colectivo || 0}`);
+        lines.push(`• Alcoholemia (+): ${operativo.alcoholemia_positiva_colectivo || 0}`);
+        lines.push(`• Ruido Molesto: ${operativo.actas_ruido_colectivo || 0}`);
+    }
 
     if (operativo.maxima_graduacion_gl > 0) {
         lines.push(``);
@@ -97,17 +124,24 @@ export function generateReportText(operativo) {
         lines.push(`• Máx. Graduación: ${operativo.maxima_graduacion_gl} g/L`);
     }
 
-    const totalFaltas =
-        operativo.actas_simples_auto + operativo.actas_simples_moto +
-        operativo.retencion_doc_auto + operativo.retencion_doc_moto +
-        operativo.alcoholemia_positiva_auto + operativo.alcoholemia_positiva_moto +
-        operativo.actas_ruido_auto + operativo.actas_ruido_moto;
+    const vehicleTypes = ['auto', 'moto', 'camion', 'camioneta', 'colectivo'];
+    let totalFaltas = 0;
+    let totalAlcohol = 0;
+
+    vehicleTypes.forEach(vh => {
+        totalFaltas += (Number(operativo[`actas_simples_${vh}`]) || 0) +
+            (Number(operativo[`retencion_doc_${vh}`]) || 0) +
+            (Number(operativo[`alcoholemia_positiva_${vh}`]) || 0) +
+            (Number(operativo[`actas_ruido_${vh}`]) || 0);
+
+        totalAlcohol += (Number(operativo[`alcoholemia_positiva_${vh}`]) || 0);
+    });
 
     lines.push(``);
     lines.push(`━━━━━━━━━━━━━━━━━━`);
     lines.push(`📊 *TOTALES*`);
     lines.push(`• Total Faltas: ${totalFaltas}`);
-    lines.push(`• Alcoholemias (+): ${operativo.alcoholemia_positiva_auto + operativo.alcoholemia_positiva_moto}`);
+    lines.push(`• Alcoholemias (+): ${totalAlcohol}`);
 
     return lines.join('\n');
 }

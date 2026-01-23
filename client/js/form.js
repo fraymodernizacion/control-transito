@@ -1,6 +1,8 @@
-import { createOperativo } from './api.js';
+import { createOperativo, updateOperativo } from './api.js';
 import { getTodayDate, showToast } from './utils.js';
 import { initDashboard } from './dashboard.js';
+
+let editingId = null;
 
 // Initialize form
 export function initForm() {
@@ -73,15 +75,20 @@ function updateSummary() {
     document.getElementById('summary-vehiculos').textContent = vehiculos;
 
     // Total faults
-    const faltas =
-        getValue('actas_simples_auto') + getValue('actas_simples_moto') +
-        getValue('retencion_doc_auto') + getValue('retencion_doc_moto') +
-        getValue('alcoholemia_positiva_auto') + getValue('alcoholemia_positiva_moto') +
-        getValue('actas_ruido_auto') + getValue('actas_ruido_moto');
-    document.getElementById('summary-faltas').textContent = faltas;
+    const vehicleTypes = ['auto', 'moto', 'camion', 'camioneta', 'colectivo'];
+    let faltas = 0;
+    let alcohol = 0;
 
-    // Alcoholemia
-    const alcohol = getValue('alcoholemia_positiva_auto') + getValue('alcoholemia_positiva_moto');
+    vehicleTypes.forEach(vh => {
+        faltas += getValue(`actas_simples_${vh}`) +
+            getValue(`retencion_doc_${vh}`) +
+            getValue(`alcoholemia_positiva_${vh}`) +
+            getValue(`actas_ruido_${vh}`);
+
+        alcohol += getValue(`alcoholemia_positiva_${vh}`);
+    });
+
+    document.getElementById('summary-faltas').textContent = faltas;
     document.getElementById('summary-alcohol').textContent = alcohol;
 }
 
@@ -105,20 +112,27 @@ function setupFormSubmission() {
             hora_fin: formData.get('hora_fin'),
             personal: formData.get('personal'),
             vehiculos_controlados_total: parseInt(formData.get('vehiculos_controlados_total')) || 0,
-            actas_simples_auto: parseInt(formData.get('actas_simples_auto')) || 0,
-            actas_simples_moto: parseInt(formData.get('actas_simples_moto')) || 0,
-            retencion_doc_auto: parseInt(formData.get('retencion_doc_auto')) || 0,
-            retencion_doc_moto: parseInt(formData.get('retencion_doc_moto')) || 0,
-            alcoholemia_positiva_auto: parseInt(formData.get('alcoholemia_positiva_auto')) || 0,
-            alcoholemia_positiva_moto: parseInt(formData.get('alcoholemia_positiva_moto')) || 0,
-            actas_ruido_auto: parseInt(formData.get('actas_ruido_auto')) || 0,
-            actas_ruido_moto: parseInt(formData.get('actas_ruido_moto')) || 0,
             maxima_graduacion_gl: parseFloat(formData.get('maxima_graduacion_gl')) || 0
         };
 
+        const vehicleTypes = ['auto', 'moto', 'camion', 'camioneta', 'colectivo'];
+        const categories = ['actas_simples', 'retencion_doc', 'alcoholemia_positiva', 'actas_ruido'];
+
+        categories.forEach(cat => {
+            vehicleTypes.forEach(vh => {
+                const fieldName = `${cat}_${vh}`;
+                data[fieldName] = parseInt(formData.get(fieldName)) || 0;
+            });
+        });
+
         try {
-            await createOperativo(data);
-            showToast('✅ Operativo guardado', 'success');
+            if (editingId) {
+                await updateOperativo(editingId, data);
+                showToast('✅ Operativo actualizado', 'success');
+            } else {
+                await createOperativo(data);
+                showToast('✅ Operativo guardado', 'success');
+            }
 
             // Reset form
             resetForm();
@@ -139,10 +153,61 @@ function setupFormSubmission() {
     });
 }
 
+// Populate form for editing
+export function editOperativo(operativo) {
+    editingId = operativo.id;
+    const form = document.getElementById('operativo-form');
+
+    // Fill the form
+    Object.keys(operativo).forEach(key => {
+        const input = form.querySelector(`[name="${key}"]`);
+        if (input) {
+            // Check if it's a date or time field
+            if (key === 'fecha') {
+                // If it's a date object or ISO string, format it
+                try {
+                    const date = new Date(operativo[key]);
+                    if (!isNaN(date)) {
+                        input.value = date.toISOString().split('T')[0];
+                    } else {
+                        input.value = operativo[key];
+                    }
+                } catch (e) {
+                    input.value = operativo[key];
+                }
+            } else {
+                input.value = operativo[key];
+            }
+        }
+    });
+
+    // Update submit button text
+    const submitBtnText = document.querySelector('.submit-btn-text');
+    if (submitBtnText) {
+        submitBtnText.textContent = '✓ Actualizar Operativo';
+    }
+
+    // Scroll to top of the view
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Switch to form view
+    document.querySelector('[data-view="form"]').click();
+
+    updateSummary();
+}
+
 // Reset form to default values
-function resetForm() {
+export function resetForm() {
     const form = document.getElementById('operativo-form');
     form.reset();
+
+    editingId = null;
+
+    // Reset submit button text
+    const submitBtnText = document.querySelector('.submit-btn-text');
+    if (submitBtnText) {
+        submitBtnText.textContent = '✓ Guardar Operativo';
+    }
 
     // Reset date to today
     document.getElementById('fecha').value = getTodayDate();
@@ -155,6 +220,3 @@ function resetForm() {
     // Update summary
     updateSummary();
 }
-
-// Export reset function
-export { resetForm };

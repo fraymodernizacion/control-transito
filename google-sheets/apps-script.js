@@ -25,19 +25,46 @@ function getSheet() {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     let sheet = ss.getSheetByName(SHEET_NAME);
 
+    const headers = [
+        'id', 'fecha', 'lugar', 'hora_inicio', 'hora_fin', 'personal',
+        'vehiculos_controlados_total',
+        'actas_simples_auto', 'actas_simples_moto', 'actas_simples_camion', 'actas_simples_camioneta', 'actas_simples_colectivo',
+        'retencion_doc_auto', 'retencion_doc_moto', 'retencion_doc_camion', 'retencion_doc_camioneta', 'retencion_doc_colectivo',
+        'alcoholemia_positiva_auto', 'alcoholemia_positiva_moto', 'alcoholemia_positiva_camion', 'alcoholemia_positiva_camioneta', 'alcoholemia_positiva_colectivo',
+        'actas_ruido_auto', 'actas_ruido_moto', 'actas_ruido_camion', 'actas_ruido_camioneta', 'actas_ruido_colectivo',
+        'maxima_graduacion_gl', 'created_at'
+    ];
+
     // Si no existe la hoja, crearla con headers
     if (!sheet) {
         sheet = ss.insertSheet(SHEET_NAME);
-        const headers = [
-            'id', 'fecha', 'lugar', 'hora_inicio', 'hora_fin', 'personal',
-            'vehiculos_controlados_total',
-            'actas_simples_auto', 'actas_simples_moto',
-            'retencion_doc_auto', 'retencion_doc_moto',
-            'alcoholemia_positiva_auto', 'alcoholemia_positiva_moto',
-            'actas_ruido_auto', 'actas_ruido_moto',
-            'maxima_graduacion_gl', 'created_at'
-        ];
         sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    } else {
+        // Verificar si faltan headers
+        const currentHeaders = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+        const missingHeaders = headers.filter(h => !currentHeaders.includes(h));
+
+        if (missingHeaders.length > 0) {
+            // Re-escribir todos los headers para asegurar orden y existencia
+            // Advertencia: esto asume que los datos están en el orden anterior.
+            // Es más seguro solo agregar al final si no queremos reordenar, 
+            // pero mi lógica de mapping usa nombres de headers así que el orden no importa tanto 
+            // siempre que los datos existentes no se mezclen.
+            // Para ser seguros, mantenemos los actuales y agregamos los nuevos antes de 'created_at'.
+
+            const newHeaders = [...currentHeaders];
+            const createdAtIdx = newHeaders.indexOf('created_at');
+
+            missingHeaders.forEach(h => {
+                if (createdAtIdx !== -1) {
+                    newHeaders.splice(createdAtIdx, 0, h);
+                } else {
+                    newHeaders.push(h);
+                }
+            });
+
+            sheet.getRange(1, 1, 1, newHeaders.length).setValues([newHeaders]);
+        }
     }
 
     return sheet;
@@ -70,6 +97,7 @@ function handleRequest(e) {
                 result = getOperativo(e.parameter.id);
                 break;
             case 'create':
+            case 'update':
                 // Aceptar datos desde parámetro 'data' (GET) o postData (POST)
                 let data;
                 if (e.parameter.data) {
@@ -79,7 +107,12 @@ function handleRequest(e) {
                 } else {
                     throw new Error('No se recibieron datos');
                 }
-                result = createOperativo(data);
+
+                if (action === 'create') {
+                    result = createOperativo(data);
+                } else {
+                    result = updateOperativo(e.parameter.id || data.id, data);
+                }
                 break;
             case 'delete':
                 result = deleteOperativo(e.parameter.id);
@@ -140,27 +173,30 @@ function getStats() {
         total_retenciones: 0,
         total_ruidos: 0,
         total_faltas_auto: 0,
-        total_faltas_moto: 0
+        total_faltas_moto: 0,
+        total_faltas_camion: 0,
+        total_faltas_camioneta: 0,
+        total_faltas_colectivo: 0
     };
+
+    const vehicleTypes = ['auto', 'moto', 'camion', 'camioneta', 'colectivo'];
 
     operativos.forEach(op => {
         stats.total_vehiculos += Number(op.vehiculos_controlados_total) || 0;
-        stats.total_alcoholemia += (Number(op.alcoholemia_positiva_auto) || 0) + (Number(op.alcoholemia_positiva_moto) || 0);
-        stats.total_actas_simples += (Number(op.actas_simples_auto) || 0) + (Number(op.actas_simples_moto) || 0);
-        stats.total_retenciones += (Number(op.retencion_doc_auto) || 0) + (Number(op.retencion_doc_moto) || 0);
-        stats.total_ruidos += (Number(op.actas_ruido_auto) || 0) + (Number(op.actas_ruido_moto) || 0);
 
-        stats.total_faltas_auto +=
-            (Number(op.actas_simples_auto) || 0) +
-            (Number(op.retencion_doc_auto) || 0) +
-            (Number(op.alcoholemia_positiva_auto) || 0) +
-            (Number(op.actas_ruido_auto) || 0);
+        vehicleTypes.forEach(vh => {
+            const alcoholemia = Number(op[`alcoholemia_positiva_${vh}`]) || 0;
+            const simple = Number(op[`actas_simples_${vh}`]) || 0;
+            const retencion = Number(op[`retencion_doc_${vh}`]) || 0;
+            const ruido = Number(op[`actas_ruido_${vh}`]) || 0;
 
-        stats.total_faltas_moto +=
-            (Number(op.actas_simples_moto) || 0) +
-            (Number(op.retencion_doc_moto) || 0) +
-            (Number(op.alcoholemia_positiva_moto) || 0) +
-            (Number(op.actas_ruido_moto) || 0);
+            stats.total_alcoholemia += alcoholemia;
+            stats.total_actas_simples += simple;
+            stats.total_retenciones += retencion;
+            stats.total_ruidos += ruido;
+
+            stats[`total_faltas_${vh}`] += (alcoholemia + simple + retencion + ruido);
+        });
     });
 
     stats.total_faltas = stats.total_actas_simples + stats.total_retenciones + stats.total_alcoholemia + stats.total_ruidos;
@@ -198,30 +234,42 @@ function createOperativo(data) {
     }
 
     const now = new Date().toISOString();
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
 
-    const newRow = [
-        newId,
-        data.fecha || '',
-        data.lugar || '',
-        data.hora_inicio || '',
-        data.hora_fin || '',
-        data.personal || '',
-        data.vehiculos_controlados_total || 0,
-        data.actas_simples_auto || 0,
-        data.actas_simples_moto || 0,
-        data.retencion_doc_auto || 0,
-        data.retencion_doc_moto || 0,
-        data.alcoholemia_positiva_auto || 0,
-        data.alcoholemia_positiva_moto || 0,
-        data.actas_ruido_auto || 0,
-        data.actas_ruido_moto || 0,
-        data.maxima_graduacion_gl || 0,
-        now
-    ];
+    // Preparar fila basada en headers
+    const newRow = headers.map(header => {
+        if (header === 'id') return newId;
+        if (header === 'created_at') return now;
+        return data[header] || (header.includes('total') || header.includes('actas') || header.includes('retencion') || header.includes('alcoholemia') || header.includes('graduacion') ? 0 : '');
+    });
 
     sheet.appendRow(newRow);
 
     return { id: newId, message: 'Operativo guardado exitosamente' };
+}
+
+// Actualizar operativo existente
+function updateOperativo(id, data) {
+    const sheet = getSheet();
+    const values = sheet.getDataRange().getValues();
+    const headers = values[0];
+
+    for (let i = 1; i < values.length; i++) {
+        if (values[i][0] == id) {
+            const rowNumber = i + 1;
+            const updatedRow = headers.map((header, index) => {
+                if (header === 'id') return values[i][index];
+                if (header === 'created_at') return values[i][index];
+                if (data.hasOwnProperty(header)) return data[header];
+                return values[i][index];
+            });
+
+            sheet.getRange(rowNumber, 1, 1, headers.length).setValues([updatedRow]);
+            return { id: id, message: 'Operativo actualizado exitosamente' };
+        }
+    }
+
+    return { error: 'Operativo no encontrado' };
 }
 
 // Eliminar un operativo
