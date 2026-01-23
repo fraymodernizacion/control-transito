@@ -53,7 +53,7 @@
       <section id="dashboard-view" class="view active">
         <header class="view-header">
           <h1>Dashboard de Control</h1>
-          <p class="view-subtitle">Resumen de operativos</p>
+          <p class="view-subtitle">Resumen de operativos v2</p>
         </header>
 
         <!-- Toolbar -->
@@ -441,49 +441,78 @@
             </div>
           </div>
 
-  <!-- SECTION 4: Summary Preview -->
-  <div class="form-card form-card-summary" id="form-summary">
-    <div class="form-card-header">
-      <span class="form-card-icon">📊</span>
-      <span class="form-card-title">Resumen del Operativo</span>
-    </div>
-    <div class="form-card-body">
-      <div class="summary-grid">
-        <div class="summary-item">
-          <span class="summary-value" id="summary-vehiculos">0</span>
-          <span class="summary-label">Vehículos</span>
+          <!-- SECTION 4: Summary Preview -->
+          <div class="form-card form-card-summary" id="form-summary">
+            <div class="form-card-header">
+              <span class="form-card-icon">📊</span>
+              <span class="form-card-title">Resumen del Operativo</span>
+            </div>
+            <div class="form-card-body">
+              <div class="summary-grid">
+                <div class="summary-item">
+                  <span class="summary-value" id="summary-vehiculos">0</span>
+                  <span class="summary-label">Vehículos</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-value" id="summary-faltas">0</span>
+                  <span class="summary-label">Total Faltas</span>
+                </div>
+                <div class="summary-item summary-item-danger">
+                  <span class="summary-value" id="summary-alcohol">0</span>
+                  <span class="summary-label">Alcoholemia</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button (Not Sticky - at end) -->
+          <div class="form-submit">
+            <button type="submit" class="submit-btn" id="submit-btn">
+              <span class="submit-btn-text">✓ Guardar Operativo</span>
+              <span class="submit-btn-loading">
+                <span class="spinner"></span>
+                Guardando...
+              </span>
+            </button>
+          </div>
+
+          <!-- Spacer for bottom nav -->
+          <div class="form-spacer"></div>
+        </form>
+      </section>
+    </main>
+
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="modal">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <h2 id="modal-title">Detalle del Operativo</h2>
+            <p id="modal-subtitle"></p>
+          </div>
+          <button class="modal-close" id="modal-close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
-        <div class="summary-item">
-          <span class="summary-value" id="summary-faltas">0</span>
-          <span class="summary-label">Total Faltas</span>
+        <div class="modal-body" id="modal-body">
+          <!-- Dynamically filled -->
         </div>
-        <div class="summary-item summary-item-danger">
-          <span class="summary-value" id="summary-alcohol">0</span>
-          <span class="summary-label">Alcoholemia</span>
+        <div class="modal-footer">
+          <button class="toolbar-btn" id="modal-btn-copy">
+            📋 Copiar
+          </button>
+          <button class="toolbar-btn primary" id="modal-btn-edit">
+            ✏️ Editar
+          </button>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Submit Button (Not Sticky - at end) -->
-  <div class="form-submit">
-    <button type="submit" class="submit-btn" id="submit-btn">
-      <span class="submit-btn-text">✓ Guardar Operativo</span>
-      <span class="submit-btn-loading">
-        <span class="spinner"></span>
-        Guardando...
-      </span>
-    </button>
-  </div>
-
-  <!-- Spacer for bottom nav -->
-  <div class="form-spacer"></div>
-  </form>
-  </section>
-  </main>
-
-  <!-- Toast Notification -->
-  <div id="toast" class="toast"></div>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>

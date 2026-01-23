@@ -12,6 +12,9 @@ let currentFilters = { dateFrom: null, dateTo: null, vehicle: 'all' };
 export async function initDashboard() {
     try {
         // Load all data
+        console.log('initDashboard started');
+        console.log('kpi-vehiculos exists:', !!document.getElementById('kpi-vehiculos'));
+        console.log('chart-infracciones exists:', !!document.getElementById('chart-infracciones'));
         allOperativos = await getOperativos();
 
         // Set default date range (last 30 days)
@@ -34,6 +37,9 @@ export async function initDashboard() {
 
         // Setup filter listeners (only once)
         setupFilterListeners();
+
+        // Setup modal close listener (only once)
+        setupModalListeners();
     } catch (error) {
         console.error('Error loading dashboard:', error);
     }
@@ -416,6 +422,106 @@ function attachHistoryListeners() {
             }
         });
     });
+
+    // Detail click
+    document.querySelectorAll('.history-item').forEach(item => {
+        item.addEventListener('click', async () => {
+            const id = item.dataset.id;
+            try {
+                // Add a small delay for better UX if needed or just fetch
+                const operativo = await getOperativo(id);
+                showDetail(operativo);
+            } catch (error) {
+                showToast('Error al cargar detalle', 'error');
+            }
+        });
+    });
+}
+
+// Show detail modal
+function showDetail(operativo) {
+    const modal = document.getElementById('detail-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalSubtitle = document.getElementById('modal-subtitle');
+    const modalBody = document.getElementById('modal-body');
+
+    if (!modal || !modalBody) return;
+
+    modalTitle.textContent = `${operativo.lugar || 'Sin ubicación'}`;
+    modalSubtitle.textContent = formatDate(operativo.fecha);
+
+    const vehicleTypes = ['auto', 'moto', 'camion', 'camioneta', 'colectivo'];
+    const vehicleLabels = { auto: 'Auto', moto: 'Moto', camion: 'Camión', camioneta: 'Camioneta', colectivo: 'Colectivo' };
+
+    let statsHtml = '';
+
+    vehicleTypes.forEach(vh => {
+        const simples = Number(operativo[`actas_simples_${vh}`]) || 0;
+        const docs = Number(operativo[`retencion_doc_${vh}`]) || 0;
+        const alcohol = Number(operativo[`alcoholemia_positiva_${vh}`]) || 0;
+        const ruidos = Number(operativo[`actas_ruido_${vh}`]) || 0;
+
+        if (simples || docs || alcohol || ruidos) {
+            statsHtml += `
+                <div class="detail-vehicle-card">
+                    <div class="detail-vehicle-header">
+                        <strong>${vehicleLabels[vh]}</strong>
+                    </div>
+                    <div class="detail-vehicle-grid">
+                        <div class="detail-stat"><span>Actas:</span> <strong>${simples}</strong></div>
+                        <div class="detail-stat"><span>Docs:</span> <strong>${docs}</strong></div>
+                        <div class="detail-stat"><span>Alc (+):</span> <strong>${alcohol}</strong></div>
+                        <div class="detail-stat"><span>Ruido:</span> <strong>${ruidos}</strong></div>
+                    </div>
+                </div>
+            `;
+        }
+    });
+
+    modalBody.innerHTML = `
+        <div class="detail-header-stats">
+            <div class="detail-h-item"><span>Inicio:</span> ${operativo.hora_inicio || '--:--'}</div>
+            <div class="detail-h-item"><span>Fin:</span> ${operativo.hora_fin || '--:--'}</div>
+            <div class="detail-h-item"><span>Personal:</span> ${operativo.personal || '-'}</div>
+            <div class="detail-h-item"><span>Controlados:</span> <strong>${operativo.vehiculos_controlados_total || 0}</strong></div>
+        </div>
+        <div class="detail-vehicles-container">
+            ${statsHtml || '<p class="detail-empty">No se registraron infracciones.</p>'}
+        </div>
+        ${operativo.maxima_graduacion_gl > 0 ? `
+            <div class="detail-alcohol-max">
+                🍺 Máxima Graduación: <strong>${operativo.maxima_graduacion_gl} g/L</strong>
+            </div>
+        ` : ''}
+    `;
+
+    // Setup buttons
+    document.getElementById('modal-btn-copy').onclick = () => {
+        const text = generateReportText(operativo);
+        copyToClipboard(text);
+        showToast('📋 Reporte copiado', 'success');
+    };
+
+    document.getElementById('modal-btn-edit').onclick = () => {
+        modal.classList.remove('active');
+        editOperativo(operativo);
+    };
+
+    modal.classList.add('active');
+}
+
+// Setup modal close listeners
+function setupModalListeners() {
+    const modal = document.getElementById('detail-modal');
+    const closeBtn = document.getElementById('modal-close');
+    const overlay = modal?.querySelector('.modal-overlay');
+
+    if (closeBtn) {
+        closeBtn.onclick = () => modal.classList.remove('active');
+    }
+    if (overlay) {
+        overlay.onclick = () => modal.classList.remove('active');
+    }
 }
 
 // Export to PDF

@@ -114,6 +114,10 @@ function setupFormSubmission() {
     const form = document.getElementById('operativo-form');
     const submitBtn = document.getElementById('submit-btn');
 
+    if (!form) {
+        console.error('Element with id "operativo-form" not found');
+        return;
+    }
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
