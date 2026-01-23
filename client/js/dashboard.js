@@ -503,8 +503,8 @@ function showDetail(operativo) {
         <div class="detail-header-stats">
             <div class="detail-h-item"><span>Inicio:</span> ${formatTime(operativo.hora_inicio)}</div>
             <div class="detail-h-item"><span>Fin:</span> ${formatTime(operativo.hora_fin)}</div>
-            <div class="detail-h-item"><span>Personal:</span> ${operativo.personal || '-'}</div>
             <div class="detail-h-item"><span>Controlados:</span> <strong>${operativo.vehiculos_controlados_total || 0}</strong></div>
+            <div class="detail-h-item full-width"><span>Personal:</span> <strong>${operativo.personal || '-'}</strong></div>
         </div>
         <div class="detail-vehicles-container">
             ${statsHtml || '<p class="detail-empty">No se registraron infracciones.</p>'}
