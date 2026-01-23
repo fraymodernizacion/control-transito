@@ -26,7 +26,8 @@ function getSheet() {
     let sheet = ss.getSheetByName(SHEET_NAME);
 
     const headers = [
-        'id', 'fecha', 'lugar', 'hora_inicio', 'hora_fin', 'personal',
+        'id', 'fecha', 'lugar', 'hora_inicio', 'hora_fin',
+        'areas_involucradas', 'personal_guardia_urbana', 'personal_transito', 'personal_bromatologia',
         'vehiculos_controlados_total',
         'actas_simples_auto', 'actas_simples_moto', 'actas_simples_camion', 'actas_simples_camioneta', 'actas_simples_colectivo',
         'retencion_doc_auto', 'retencion_doc_moto', 'retencion_doc_camion', 'retencion_doc_camioneta', 'retencion_doc_colectivo',

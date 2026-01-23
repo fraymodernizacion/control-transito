@@ -138,7 +138,10 @@ function setupFormSubmission() {
             lugar: formData.get('lugar'),
             hora_inicio: formData.get('hora_inicio'),
             hora_fin: formData.get('hora_fin'),
-            personal: formData.get('personal'),
+            areas_involucradas: areasInvolucradas,
+            personal_guardia_urbana: parseInt(formData.get('personal_guardia_urbana')) || 0,
+            personal_transito: parseInt(formData.get('personal_transito')) || 0,
+            personal_bromatologia: parseInt(formData.get('personal_bromatologia')) || 0,
             vehiculos_controlados_total: parseInt(formData.get('vehiculos_controlados_total')) || 0,
             maxima_graduacion_gl: parseFloat(formData.get('maxima_graduacion_gl')) || 0
         };
@@ -204,6 +207,13 @@ export function editOperativo(operativo) {
                 } catch (e) {
                     input.value = operativo[key];
                 }
+            } else if (key === 'areas_involucradas') {
+                const areas = operativo[key] ? operativo[key].split(', ') : [];
+                form.querySelectorAll('input[name="areas_involucradas"]').forEach(cb => {
+                    cb.checked = areas.includes(cb.value);
+                    const container = cb.closest('.checkbox-item');
+                    if (container) container.classList.toggle('selected', cb.checked);
+                });
             } else {
                 input.value = operativo[key];
             }
@@ -245,6 +255,13 @@ export function resetForm() {
     // Reset all number inputs to 0
     form.querySelectorAll('input[type="number"]').forEach(input => {
         input.value = '0';
+    });
+
+    // Reset areas checkboxes
+    form.querySelectorAll('input[name="areas_involucradas"]').forEach(cb => {
+        cb.checked = false;
+        const container = cb.closest('.checkbox-item');
+        if (container) container.classList.remove('selected');
     });
 
     // Update summary

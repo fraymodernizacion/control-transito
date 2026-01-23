@@ -85,13 +85,31 @@ export function showToast(message, type = 'success') {
 
 // Generate report text for sharing
 export function generateReportText(operativo) {
+    // Build personal string from new fields
+    const personalParts = [];
+    if (operativo.personal_guardia_urbana > 0) {
+        personalParts.push(`${operativo.personal_guardia_urbana} Guardia Urbana`);
+    }
+    if (operativo.personal_transito > 0) {
+        personalParts.push(`${operativo.personal_transito} Tránsito`);
+    }
+    if (operativo.personal_bromatologia > 0) {
+        personalParts.push(`${operativo.personal_bromatologia} Bromatología`);
+    }
+    const personalStr = personalParts.length > 0 ? personalParts.join(', ') : 'No especificado';
+
     const lines = [
         `📋 *REPORTE DE OPERATIVO*`,
         `━━━━━━━━━━━━━━━━━━`,
         `📅 Fecha: ${formatDate(operativo.fecha)}`,
         `📍 Lugar: ${operativo.lugar || 'No especificado'}`,
         `🕐 Horario: ${formatTime(operativo.hora_inicio) || '--:--'} - ${formatTime(operativo.hora_fin) || '--:--'}`,
-        `👮 Personal: ${operativo.personal || 'No especificado'}`,
+        ``,
+        `🏛️ *ÁREAS INVOLUCRADAS*`,
+        `${operativo.areas_involucradas || 'No especificadas'}`,
+        ``,
+        `👮 *PERSONAL MUNICIPAL*`,
+        `${personalStr}`,
         ``,
         `🚗 *CONTROL GENERAL*`,
         `• Vehículos Controlados: ${operativo.vehiculos_controlados_total}`,

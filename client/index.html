@@ -175,344 +175,413 @@
                 </div>
               </div>
               <div class="input-row">
-                <label for="personal">Personal Afectado</label>
-                <input type="text" id="personal" name="personal" placeholder="Reparticiones que intervienen"
-                  inputmode="text">
+                <!-- Keep hidden input for backward compatibility if needed, or remove if JS is updated to collect fields -->
               </div>
             </div>
           </div>
 
-          <!-- SECTION 2: Vehículos Controlados -->
-          <div class="form-card form-card-primary">
-            <div class="form-card-header">
-              <span class="form-card-icon">🚗</span>
-              <span class="form-card-title">Vehículos Controlados</span>
-            </div>
-            <div class="form-card-body">
-              <div class="big-counter">
-                <button type="button" class="big-counter-btn minus" data-field="vehiculos_controlados_total">−</button>
-                <input type="number" id="vehiculos_controlados_total" name="vehiculos_controlados_total" value="0"
-                  min="0" inputmode="numeric" pattern="[0-9]*">
-                <button type="button" class="big-counter-btn plus" data-field="vehiculos_controlados_total">+</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- SECTION 3: Infracciones -->
+          <!-- SECTION: Áreas Involucradas -->
           <div class="form-card">
             <div class="form-card-header">
-              <span class="form-card-icon">📝</span>
-              <span class="form-card-title">Actas Simples</span>
+              <span class="form-card-icon">🏛️</span>
+              <span class="form-card-title">Áreas Involucradas</span>
             </div>
             <div class="form-card-body">
-              <div class="quad-counter">
-                <div class="counter-item">
-                  <span class="counter-label">🚗 Autos</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus" data-field="actas_simples_auto">−</button>
-                    <input type="number" id="actas_simples_auto" name="actas_simples_auto" value="0" min="0"
-                      inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus" data-field="actas_simples_auto">+</button>
-                  </div>
-                </div>
-                <div class="counter-item">
-                  <span class="counter-label">🏍️ Motos</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus" data-field="actas_simples_moto">−</button>
-                    <input type="number" id="actas_simples_moto" name="actas_simples_moto" value="0" min="0"
-                      inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus" data-field="actas_simples_moto">+</button>
-                  </div>
-                </div>
-                <div class="counter-item">
-                  <span class="counter-label">🚚 Camión</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus" data-field="actas_simples_camion">−</button>
-                    <input type="number" id="actas_simples_camion" name="actas_simples_camion" value="0" min="0"
-                      inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus" data-field="actas_simples_camion">+</button>
-                  </div>
-                </div>
-                <div class="counter-item">
-                  <span class="counter-label">🛻 Camioneta</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus" data-field="actas_simples_camioneta">−</button>
-                    <input type="number" id="actas_simples_camioneta" name="actas_simples_camioneta" value="0" min="0"
-                      inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus" data-field="actas_simples_camioneta">+</button>
-                  </div>
-                </div>
-                <div class="counter-item">
-                  <span class="counter-label">🚌 Colectivo</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus" data-field="actas_simples_colectivo">−</button>
-                    <input type="number" id="actas_simples_colectivo" name="actas_simples_colectivo" value="0" min="0"
-                      inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus" data-field="actas_simples_colectivo">+</button>
-                  </div>
-                </div>
+              <div class="checkbox-grid">
+                <label class="checkbox-item">
+                  <input type="checkbox" name="areas_involucradas" value="Dirección Provincial de Seguridad Vial">
+                  <span class="checkbox-label">Dir. Prov. Seguridad Vial</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="areas_involucradas" value="Seguridad Vial Nacional">
+                  <span class="checkbox-label">Seguridad Vial Nacional</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="areas_involucradas" value="Policía">
+                  <span class="checkbox-label">Policía</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="areas_involucradas" value="ARCAT">
+                  <span class="checkbox-label">ARCAT</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="areas_involucradas" value="Guardia Urbana Municipal">
+                  <span class="checkbox-label">Guardia Urbana Municipal</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="areas_involucradas" value="Tránsito">
+                  <span class="checkbox-label">Tránsito</span>
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="areas_involucradas" value="Bromatología">
+                  <span class="checkbox-label">Bromatología</span>
+                </label>
               </div>
             </div>
           </div>
 
+          <!-- SECTION: Personal Afectado Municipal -->
           <div class="form-card">
             <div class="form-card-header">
-              <span class="form-card-icon">📄</span>
-              <span class="form-card-title">Retención por documentación</span>
+              <span class="form-card-icon">👮</span>
+              <span class="form-card-title">Personal Municipal Afectado</span>
             </div>
             <div class="form-card-body">
-              <div class="quad-counter">
-                <div class="counter-item">
-                  <span class="counter-label">🚗 Autos</span>
+              <div class="personal-grid">
+                <div class="personal-item">
+                  <span class="personal-label">Guardia Urbana</span>
                   <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus" data-field="retencion_doc_auto">−</button>
-                    <input type="number" id="retencion_doc_auto" name="retencion_doc_auto" value="0" min="0"
+                    <button type="button" class="mini-counter-btn minus" data-field="personal_guardia_urbana">−</button>
+                    <input type="number" id="personal_guardia_urbana" name="personal_guardia_urbana" value="0" min="0"
                       inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus" data-field="retencion_doc_auto">+</button>
+                    <button type="button" class="mini-counter-btn plus" data-field="personal_guardia_urbana">+</button>
                   </div>
                 </div>
-                <div class="counter-item">
-                  <span class="counter-label">🏍️ Motos</span>
+                <div class="personal-item">
+                  <span class="personal-label">Tránsito</span>
                   <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus" data-field="retencion_doc_moto">−</button>
-                    <input type="number" id="retencion_doc_moto" name="retencion_doc_moto" value="0" min="0"
+                    <button type="button" class="mini-counter-btn minus" data-field="personal_transito">−</button>
+                    <input type="number" id="personal_transito" name="personal_transito" value="0" min="0"
                       inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus" data-field="retencion_doc_moto">+</button>
+                    <button type="button" class="mini-counter-btn plus" data-field="personal_transito">+</button>
                   </div>
                 </div>
-                <div class="counter-item">
-                  <span class="counter-label">🚚 Camión</span>
+                <div class="personal-item">
+                  <span class="personal-label">Bromatología</span>
                   <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus" data-field="retencion_doc_camion">−</button>
-                    <input type="number" id="retencion_doc_camion" name="retencion_doc_camion" value="0" min="0"
+                    <button type="button" class="mini-counter-btn minus" data-field="personal_bromatologia">−</button>
+                    <input type="number" id="personal_bromatologia" name="personal_bromatologia" value="0" min="0"
                       inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus" data-field="retencion_doc_camion">+</button>
-                  </div>
-                </div>
-                <div class="counter-item">
-                  <span class="counter-label">🛻 Camioneta</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus" data-field="retencion_doc_camioneta">−</button>
-                    <input type="number" id="retencion_doc_camioneta" name="retencion_doc_camioneta" value="0" min="0"
-                      inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus" data-field="retencion_doc_camioneta">+</button>
-                  </div>
-                </div>
-                <div class="counter-item">
-                  <span class="counter-label">🚌 Colectivo</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus" data-field="retencion_doc_colectivo">−</button>
-                    <input type="number" id="retencion_doc_colectivo" name="retencion_doc_colectivo" value="0" min="0"
-                      inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus" data-field="retencion_doc_colectivo">+</button>
+                    <button type="button" class="mini-counter-btn plus" data-field="personal_bromatologia">+</button>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+  </div>
+  </div>
 
-          <div class="form-card form-card-danger">
-            <div class="form-card-header">
-              <span class="form-card-icon">🍺</span>
-              <span class="form-card-title">Alcoholemia Positiva</span>
-            </div>
-            <div class="form-card-body">
-              <div class="quad-counter">
-                <div class="counter-item">
-                  <span class="counter-label">🚗 Autos</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus"
-                      data-field="alcoholemia_positiva_auto">−</button>
-                    <input type="number" id="alcoholemia_positiva_auto" name="alcoholemia_positiva_auto" value="0"
-                      min="0" inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus"
-                      data-field="alcoholemia_positiva_auto">+</button>
-                  </div>
-                </div>
-                <div class="counter-item">
-                  <span class="counter-label">🏍️ Motos</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus"
-                      data-field="alcoholemia_positiva_moto">−</button>
-                    <input type="number" id="alcoholemia_positiva_moto" name="alcoholemia_positiva_moto" value="0"
-                      min="0" inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus"
-                      data-field="alcoholemia_positiva_moto">+</button>
-                  </div>
-                </div>
-                <div class="counter-item">
-                  <span class="counter-label">🚚 Camión</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus"
-                      data-field="alcoholemia_positiva_camion">−</button>
-                    <input type="number" id="alcoholemia_positiva_camion" name="alcoholemia_positiva_camion" value="0"
-                      min="0" inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus"
-                      data-field="alcoholemia_positiva_camion">+</button>
-                  </div>
-                </div>
-                <div class="counter-item">
-                  <span class="counter-label">🛻 Camioneta</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus"
-                      data-field="alcoholemia_positiva_camioneta">−</button>
-                    <input type="number" id="alcoholemia_positiva_camioneta" name="alcoholemia_positiva_camioneta"
-                      value="0" min="0" inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus"
-                      data-field="alcoholemia_positiva_camioneta">+</button>
-                  </div>
-                </div>
-                <div class="counter-item">
-                  <span class="counter-label">🚌 Colectivo</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus"
-                      data-field="alcoholemia_positiva_colectivo">−</button>
-                    <input type="number" id="alcoholemia_positiva_colectivo" name="alcoholemia_positiva_colectivo"
-                      value="0" min="0" inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus"
-                      data-field="alcoholemia_positiva_colectivo">+</button>
-                  </div>
-                </div>
-              </div>
-              <div class="graduation-row">
-                <label>Máx. Graduación</label>
-                <div class="graduation-input">
-                  <input type="number" id="maxima_graduacion_gl" name="maxima_graduacion_gl" value="0" min="0" max="5"
-                    step="0.01" inputmode="decimal">
-                  <span>g/L</span>
-                </div>
-              </div>
-            </div>
+  <!-- SECTION 2: Vehículos Controlados -->
+  <div class="form-card form-card-primary">
+    <div class="form-card-header">
+      <span class="form-card-icon">🚗</span>
+      <span class="form-card-title">Vehículos Controlados</span>
+    </div>
+    <div class="form-card-body">
+      <div class="big-counter">
+        <button type="button" class="big-counter-btn minus" data-field="vehiculos_controlados_total">−</button>
+        <input type="number" id="vehiculos_controlados_total" name="vehiculos_controlados_total" value="0" min="0"
+          inputmode="numeric" pattern="[0-9]*">
+        <button type="button" class="big-counter-btn plus" data-field="vehiculos_controlados_total">+</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Infracciones -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <span class="form-card-icon">📝</span>
+      <span class="form-card-title">Actas Simples</span>
+    </div>
+    <div class="form-card-body">
+      <div class="quad-counter">
+        <div class="counter-item">
+          <span class="counter-label">🚗 Autos</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="actas_simples_auto">−</button>
+            <input type="number" id="actas_simples_auto" name="actas_simples_auto" value="0" min="0" inputmode="numeric"
+              pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="actas_simples_auto">+</button>
           </div>
-
-          <div class="form-card">
-            <div class="form-card-header">
-              <span class="form-card-icon">🔊</span>
-              <span class="form-card-title">Ruido Molesto</span>
-            </div>
-            <div class="form-card-body">
-              <div class="quad-counter">
-                <div class="counter-item">
-                  <span class="counter-label">🚗 Autos</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus" data-field="actas_ruido_auto">−</button>
-                    <input type="number" id="actas_ruido_auto" name="actas_ruido_auto" value="0" min="0"
-                      inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus" data-field="actas_ruido_auto">+</button>
-                  </div>
-                </div>
-                <div class="counter-item">
-                  <span class="counter-label">🏍️ Motos</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus" data-field="actas_ruido_moto">−</button>
-                    <input type="number" id="actas_ruido_moto" name="actas_ruido_moto" value="0" min="0"
-                      inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus" data-field="actas_ruido_moto">+</button>
-                  </div>
-                </div>
-                <div class="counter-item">
-                  <span class="counter-label">🚚 Camión</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus" data-field="actas_ruido_camion">−</button>
-                    <input type="number" id="actas_ruido_camion" name="actas_ruido_camion" value="0" min="0"
-                      inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus" data-field="actas_ruido_camion">+</button>
-                  </div>
-                </div>
-                <div class="counter-item">
-                  <span class="counter-label">🛻 Camioneta</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus" data-field="actas_ruido_camioneta">−</button>
-                    <input type="number" id="actas_ruido_camioneta" name="actas_ruido_camioneta" value="0" min="0"
-                      inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus" data-field="actas_ruido_camioneta">+</button>
-                  </div>
-                </div>
-                <div class="counter-item">
-                  <span class="counter-label">🚌 Colectivo</span>
-                  <div class="mini-counter">
-                    <button type="button" class="mini-counter-btn minus" data-field="actas_ruido_colectivo">−</button>
-                    <input type="number" id="actas_ruido_colectivo" name="actas_ruido_colectivo" value="0" min="0"
-                      inputmode="numeric" pattern="[0-9]*">
-                    <button type="button" class="mini-counter-btn plus" data-field="actas_ruido_colectivo">+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- SECTION 4: Summary Preview -->
-          <div class="form-card form-card-summary" id="form-summary">
-            <div class="form-card-header">
-              <span class="form-card-icon">📊</span>
-              <span class="form-card-title">Resumen del Operativo</span>
-            </div>
-            <div class="form-card-body">
-              <div class="summary-grid">
-                <div class="summary-item">
-                  <span class="summary-value" id="summary-vehiculos">0</span>
-                  <span class="summary-label">Vehículos</span>
-                </div>
-                <div class="summary-item">
-                  <span class="summary-value" id="summary-faltas">0</span>
-                  <span class="summary-label">Total Faltas</span>
-                </div>
-                <div class="summary-item summary-item-danger">
-                  <span class="summary-value" id="summary-alcohol">0</span>
-                  <span class="summary-label">Alcoholemia</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Submit Button (Not Sticky - at end) -->
-          <div class="form-submit">
-            <button type="submit" class="submit-btn" id="submit-btn">
-              <span class="submit-btn-text">✓ Guardar Operativo</span>
-              <span class="submit-btn-loading">
-                <span class="spinner"></span>
-                Guardando...
-              </span>
-            </button>
-          </div>
-
-          <!-- Spacer for bottom nav -->
-          <div class="form-spacer"></div>
-        </form>
-      </section>
-    </main>
-
-    <!-- Detail Modal -->
-    <div id="detail-modal" class="modal">
-      <div class="modal-overlay"></div>
-      <div class="modal-content">
-        <div class="modal-header">
-          <div class="modal-header-info">
-            <h2 id="modal-title">Detalle del Operativo</h2>
-            <p id="modal-subtitle"></p>
-          </div>
-          <button class="modal-close" id="modal-close">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
         </div>
-        <div class="modal-body" id="modal-body">
-          <!-- Dynamically filled -->
+        <div class="counter-item">
+          <span class="counter-label">🏍️ Motos</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="actas_simples_moto">−</button>
+            <input type="number" id="actas_simples_moto" name="actas_simples_moto" value="0" min="0" inputmode="numeric"
+              pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="actas_simples_moto">+</button>
+          </div>
         </div>
-        <div class="modal-footer">
-          <button class="toolbar-btn" id="modal-btn-copy">
-            📋 Copiar
-          </button>
-          <button class="toolbar-btn primary" id="modal-btn-edit">
-            ✏️ Editar
-          </button>
+        <div class="counter-item">
+          <span class="counter-label">🚚 Camión</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="actas_simples_camion">−</button>
+            <input type="number" id="actas_simples_camion" name="actas_simples_camion" value="0" min="0"
+              inputmode="numeric" pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="actas_simples_camion">+</button>
+          </div>
+        </div>
+        <div class="counter-item">
+          <span class="counter-label">🛻 Camioneta</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="actas_simples_camioneta">−</button>
+            <input type="number" id="actas_simples_camioneta" name="actas_simples_camioneta" value="0" min="0"
+              inputmode="numeric" pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="actas_simples_camioneta">+</button>
+          </div>
+        </div>
+        <div class="counter-item">
+          <span class="counter-label">🚌 Colectivo</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="actas_simples_colectivo">−</button>
+            <input type="number" id="actas_simples_colectivo" name="actas_simples_colectivo" value="0" min="0"
+              inputmode="numeric" pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="actas_simples_colectivo">+</button>
+          </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
+  <div class="form-card">
+    <div class="form-card-header">
+      <span class="form-card-icon">📄</span>
+      <span class="form-card-title">Retención por documentación</span>
+    </div>
+    <div class="form-card-body">
+      <div class="quad-counter">
+        <div class="counter-item">
+          <span class="counter-label">🚗 Autos</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="retencion_doc_auto">−</button>
+            <input type="number" id="retencion_doc_auto" name="retencion_doc_auto" value="0" min="0" inputmode="numeric"
+              pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="retencion_doc_auto">+</button>
+          </div>
+        </div>
+        <div class="counter-item">
+          <span class="counter-label">🏍️ Motos</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="retencion_doc_moto">−</button>
+            <input type="number" id="retencion_doc_moto" name="retencion_doc_moto" value="0" min="0" inputmode="numeric"
+              pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="retencion_doc_moto">+</button>
+          </div>
+        </div>
+        <div class="counter-item">
+          <span class="counter-label">🚚 Camión</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="retencion_doc_camion">−</button>
+            <input type="number" id="retencion_doc_camion" name="retencion_doc_camion" value="0" min="0"
+              inputmode="numeric" pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="retencion_doc_camion">+</button>
+          </div>
+        </div>
+        <div class="counter-item">
+          <span class="counter-label">🛻 Camioneta</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="retencion_doc_camioneta">−</button>
+            <input type="number" id="retencion_doc_camioneta" name="retencion_doc_camioneta" value="0" min="0"
+              inputmode="numeric" pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="retencion_doc_camioneta">+</button>
+          </div>
+        </div>
+        <div class="counter-item">
+          <span class="counter-label">🚌 Colectivo</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="retencion_doc_colectivo">−</button>
+            <input type="number" id="retencion_doc_colectivo" name="retencion_doc_colectivo" value="0" min="0"
+              inputmode="numeric" pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="retencion_doc_colectivo">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card form-card-danger">
+    <div class="form-card-header">
+      <span class="form-card-icon">🍺</span>
+      <span class="form-card-title">Alcoholemia Positiva</span>
+    </div>
+    <div class="form-card-body">
+      <div class="quad-counter">
+        <div class="counter-item">
+          <span class="counter-label">🚗 Autos</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="alcoholemia_positiva_auto">−</button>
+            <input type="number" id="alcoholemia_positiva_auto" name="alcoholemia_positiva_auto" value="0" min="0"
+              inputmode="numeric" pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="alcoholemia_positiva_auto">+</button>
+          </div>
+        </div>
+        <div class="counter-item">
+          <span class="counter-label">🏍️ Motos</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="alcoholemia_positiva_moto">−</button>
+            <input type="number" id="alcoholemia_positiva_moto" name="alcoholemia_positiva_moto" value="0" min="0"
+              inputmode="numeric" pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="alcoholemia_positiva_moto">+</button>
+          </div>
+        </div>
+        <div class="counter-item">
+          <span class="counter-label">🚚 Camión</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="alcoholemia_positiva_camion">−</button>
+            <input type="number" id="alcoholemia_positiva_camion" name="alcoholemia_positiva_camion" value="0" min="0"
+              inputmode="numeric" pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="alcoholemia_positiva_camion">+</button>
+          </div>
+        </div>
+        <div class="counter-item">
+          <span class="counter-label">🛻 Camioneta</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="alcoholemia_positiva_camioneta">−</button>
+            <input type="number" id="alcoholemia_positiva_camioneta" name="alcoholemia_positiva_camioneta" value="0"
+              min="0" inputmode="numeric" pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="alcoholemia_positiva_camioneta">+</button>
+          </div>
+        </div>
+        <div class="counter-item">
+          <span class="counter-label">🚌 Colectivo</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="alcoholemia_positiva_colectivo">−</button>
+            <input type="number" id="alcoholemia_positiva_colectivo" name="alcoholemia_positiva_colectivo" value="0"
+              min="0" inputmode="numeric" pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="alcoholemia_positiva_colectivo">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="graduation-row">
+        <label>Máx. Graduación</label>
+        <div class="graduation-input">
+          <input type="number" id="maxima_graduacion_gl" name="maxima_graduacion_gl" value="0" min="0" max="5"
+            step="0.01" inputmode="decimal">
+          <span>g/L</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-card-header">
+      <span class="form-card-icon">🔊</span>
+      <span class="form-card-title">Ruido Molesto</span>
+    </div>
+    <div class="form-card-body">
+      <div class="quad-counter">
+        <div class="counter-item">
+          <span class="counter-label">🚗 Autos</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="actas_ruido_auto">−</button>
+            <input type="number" id="actas_ruido_auto" name="actas_ruido_auto" value="0" min="0" inputmode="numeric"
+              pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="actas_ruido_auto">+</button>
+          </div>
+        </div>
+        <div class="counter-item">
+          <span class="counter-label">🏍️ Motos</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="actas_ruido_moto">−</button>
+            <input type="number" id="actas_ruido_moto" name="actas_ruido_moto" value="0" min="0" inputmode="numeric"
+              pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="actas_ruido_moto">+</button>
+          </div>
+        </div>
+        <div class="counter-item">
+          <span class="counter-label">🚚 Camión</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="actas_ruido_camion">−</button>
+            <input type="number" id="actas_ruido_camion" name="actas_ruido_camion" value="0" min="0" inputmode="numeric"
+              pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="actas_ruido_camion">+</button>
+          </div>
+        </div>
+        <div class="counter-item">
+          <span class="counter-label">🛻 Camioneta</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="actas_ruido_camioneta">−</button>
+            <input type="number" id="actas_ruido_camioneta" name="actas_ruido_camioneta" value="0" min="0"
+              inputmode="numeric" pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="actas_ruido_camioneta">+</button>
+          </div>
+        </div>
+        <div class="counter-item">
+          <span class="counter-label">🚌 Colectivo</span>
+          <div class="mini-counter">
+            <button type="button" class="mini-counter-btn minus" data-field="actas_ruido_colectivo">−</button>
+            <input type="number" id="actas_ruido_colectivo" name="actas_ruido_colectivo" value="0" min="0"
+              inputmode="numeric" pattern="[0-9]*">
+            <button type="button" class="mini-counter-btn plus" data-field="actas_ruido_colectivo">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: Summary Preview -->
+  <div class="form-card form-card-summary" id="form-summary">
+    <div class="form-card-header">
+      <span class="form-card-icon">📊</span>
+      <span class="form-card-title">Resumen del Operativo</span>
+    </div>
+    <div class="form-card-body">
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-value" id="summary-vehiculos">0</span>
+          <span class="summary-label">Vehículos</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-value" id="summary-faltas">0</span>
+          <span class="summary-label">Total Faltas</span>
+        </div>
+        <div class="summary-item summary-item-danger">
+          <span class="summary-value" id="summary-alcohol">0</span>
+          <span class="summary-label">Alcoholemia</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit Button (Not Sticky - at end) -->
+  <div class="form-submit">
+    <button type="submit" class="submit-btn" id="submit-btn">
+      <span class="submit-btn-text">✓ Guardar Operativo</span>
+      <span class="submit-btn-loading">
+        <span class="spinner"></span>
+        Guardando...
+      </span>
+    </button>
+  </div>
+
+  <!-- Spacer for bottom nav -->
+  <div class="form-spacer"></div>
+  </form>
+  </section>
+  </main>
+
+  <!-- Detail Modal -->
+  <div id="detail-modal" class="modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-header-info">
+          <h2 id="modal-title">Detalle del Operativo</h2>
+          <p id="modal-subtitle"></p>
+        </div>
+        <button class="modal-close" id="modal-close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Dynamically filled -->
+      </div>
+      <div class="modal-footer">
+        <button class="toolbar-btn" id="modal-btn-copy">
+          📋 Copiar
+        </button>
+        <button class="toolbar-btn primary" id="modal-btn-edit">
+          ✏️ Editar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>

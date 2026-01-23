@@ -499,12 +499,20 @@ function showDetail(operativo) {
         }
     });
 
+    // Build personal string
+    const personalParts = [];
+    if (operativo.personal_guardia_urbana > 0) personalParts.push(`${operativo.personal_guardia_urbana} Guardia Urbana`);
+    if (operativo.personal_transito > 0) personalParts.push(`${operativo.personal_transito} Tránsito`);
+    if (operativo.personal_bromatologia > 0) personalParts.push(`${operativo.personal_bromatologia} Bromatología`);
+    const personalStr = personalParts.length > 0 ? personalParts.join(', ') : '-';
+
     modalBody.innerHTML = `
         <div class="detail-header-stats">
             <div class="detail-h-item"><span>Inicio:</span> ${formatTime(operativo.hora_inicio)}</div>
             <div class="detail-h-item"><span>Fin:</span> ${formatTime(operativo.hora_fin)}</div>
             <div class="detail-h-item"><span>Controlados:</span> <strong>${operativo.vehiculos_controlados_total || 0}</strong></div>
-            <div class="detail-h-item full-width"><span>Personal:</span> <strong>${operativo.personal || '-'}</strong></div>
+            <div class="detail-h-item full-width"><span>Áreas:</span> ${operativo.areas_involucradas || '-'}</div>
+            <div class="detail-h-item full-width"><span>Personal:</span> <strong>${personalStr}</strong></div>
         </div>
         <div class="detail-vehicles-container">
             ${statsHtml || '<p class="detail-empty">No se registraron infracciones.</p>'}
