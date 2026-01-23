@@ -328,7 +328,7 @@ function renderHistory() {
         return `
       <div class="history-item" data-id="${op.id}">
         <div class="history-item-info">
-          <span class="history-item-date">${formatDate(op.fecha)}</span>
+          <span class="history-item-date">${formatDate(op.fecha, true)}</span>
           <span class="history-item-lugar">${op.lugar || 'Sin ubicación especificada'}</span>
         </div>
         <div class="history-item-stats">
@@ -448,7 +448,9 @@ function showDetail(operativo) {
     if (!modal || !modalBody) return;
 
     modalTitle.textContent = `${operativo.lugar || 'Sin ubicación'}`;
-    modalSubtitle.textContent = formatDate(operativo.fecha);
+    const dateText = formatDate(operativo.fecha);
+    const timeText = `${formatTime(operativo.hora_inicio)} a ${formatTime(operativo.hora_fin)}`;
+    modalSubtitle.textContent = `${dateText} (${timeText})`;
 
     const vehicleTypes = ['auto', 'moto', 'camion', 'camioneta', 'colectivo'];
     const vehicleLabels = { auto: 'Auto', moto: 'Moto', camion: 'Camión', camioneta: 'Camioneta', colectivo: 'Colectivo' };
@@ -480,8 +482,8 @@ function showDetail(operativo) {
 
     modalBody.innerHTML = `
         <div class="detail-header-stats">
-            <div class="detail-h-item"><span>Inicio:</span> ${operativo.hora_inicio || '--:--'}</div>
-            <div class="detail-h-item"><span>Fin:</span> ${operativo.hora_fin || '--:--'}</div>
+            <div class="detail-h-item"><span>Inicio:</span> ${formatTime(operativo.hora_inicio)}</div>
+            <div class="detail-h-item"><span>Fin:</span> ${formatTime(operativo.hora_fin)}</div>
             <div class="detail-h-item"><span>Personal:</span> ${operativo.personal || '-'}</div>
             <div class="detail-h-item"><span>Controlados:</span> <strong>${operativo.vehiculos_controlados_total || 0}</strong></div>
         </div>

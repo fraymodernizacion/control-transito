@@ -1,51 +1,62 @@
 // Format date for display
-export function formatDate(dateStr) {
+export function formatDate(dateStr, short = false) {
     if (!dateStr) return 'Sin fecha';
 
     let date;
 
     // Handle different date formats from Google Sheets
     if (typeof dateStr === 'string') {
-        // Try standard format first (YYYY-MM-DD)
         if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
             date = new Date(dateStr + 'T12:00:00');
-        }
-        // Handle DD/MM/YYYY format
-        else if (dateStr.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
+        } else if (dateStr.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
             const [day, month, year] = dateStr.split('/');
             date = new Date(year, month - 1, day, 12, 0, 0);
-        }
-        // Handle ISO string
-        else if (dateStr.includes('T')) {
+        } else if (dateStr.includes('T')) {
             date = new Date(dateStr);
-        }
-        // Fallback
-        else {
+        } else {
             date = new Date(dateStr);
         }
     } else if (typeof dateStr === 'number') {
-        // Google Sheets serial date (days since Dec 30, 1899)
         date = new Date((dateStr - 25569) * 86400 * 1000);
     } else {
         date = new Date(dateStr);
     }
 
-    // Check if valid
-    if (isNaN(date.getTime())) {
-        return 'Sin fecha';
+    if (isNaN(date.getTime())) return 'Sin fecha';
+
+    if (short) {
+        return date.toLocaleDateString('es-AR', {
+            day: '2-digit',
+            month: 'short',
+        });
     }
 
     return date.toLocaleDateString('es-AR', {
+        weekday: 'long',
         day: '2-digit',
-        month: 'short',
+        month: 'long',
         year: 'numeric'
-    });
+    }).replace(/^\w/, (c) => c.toUpperCase());
 }
 
 // Format time for display
 export function formatTime(timeStr) {
-    if (!timeStr) return '';
-    return timeStr.substring(0, 5);
+    if (!timeStr) return '--:--';
+
+    // If it's a date string like "1899-12-30T22:16:48.000Z" (Apps Script Time object)
+    if (typeof timeStr === 'string' && timeStr.includes('T')) {
+        const date = new Date(timeStr);
+        if (!isNaN(date.getTime())) {
+            return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+    }
+
+    // If it's already HH:mm:ss or similar, take just HH:mm
+    if (typeof timeStr === 'string') {
+        return timeStr.substring(0, 5);
+    }
+
+    return timeStr;
 }
 
 // Get today's date in YYYY-MM-DD format

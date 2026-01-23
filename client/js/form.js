@@ -136,10 +136,7 @@ function setupFormSubmission() {
             lugar: formData.get('lugar'),
             hora_inicio: formData.get('hora_inicio'),
             hora_fin: formData.get('hora_fin'),
-            areas_involucradas: areasInvolucradas,
-            personal_guardia_urbana: parseInt(formData.get('personal_guardia_urbana')) || 0,
-            personal_transito: parseInt(formData.get('personal_transito')) || 0,
-            personal_bromatologia: parseInt(formData.get('personal_bromatologia')) || 0,
+            personal: formData.get('personal'),
             vehiculos_controlados_total: parseInt(formData.get('vehiculos_controlados_total')) || 0,
             maxima_graduacion_gl: parseFloat(formData.get('maxima_graduacion_gl')) || 0
         };
