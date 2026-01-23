@@ -114,13 +114,13 @@ export function generateReportText(operativo) {
         `🚗 *CONTROL GENERAL*`,
         `• Vehículos Controlados: ${operativo.vehiculos_controlados_total}`,
         ``,
-        `🚗 *SANCIONES - AUTOS*`,
+        `🚗 *AUTOS*`,
         `• Actas Simples: ${operativo.actas_simples_auto || 0}`,
         `• Retención por doc: ${operativo.retencion_doc_auto || 0}`,
         `• Alcoholemia (+): ${operativo.alcoholemia_positiva_auto || 0}`,
         `• Ruido Molesto: ${operativo.actas_ruido_auto || 0}`,
         ``,
-        `🏍️ *SANCIONES - MOTOS*`,
+        `🏍️ *MOTOS*`,
         `• Actas Simples: ${operativo.actas_simples_moto || 0}`,
         `• Retención por doc: ${operativo.retencion_doc_moto || 0}`,
         `• Alcoholemia (+): ${operativo.alcoholemia_positiva_moto || 0}`,
@@ -129,7 +129,7 @@ export function generateReportText(operativo) {
 
     if (operativo.actas_simples_camion || operativo.retencion_doc_camion || operativo.alcoholemia_positiva_camion || operativo.actas_ruido_camion) {
         lines.push(``);
-        lines.push(`🚚 *SANCIONES - CAMIONES*`);
+        lines.push(`🚚 *CAMIONES*`);
         lines.push(`• Actas Simples: ${operativo.actas_simples_camion || 0}`);
         lines.push(`• Retención por doc: ${operativo.retencion_doc_camion || 0}`);
         lines.push(`• Alcoholemia (+): ${operativo.alcoholemia_positiva_camion || 0}`);
@@ -138,7 +138,7 @@ export function generateReportText(operativo) {
 
     if (operativo.actas_simples_camioneta || operativo.retencion_doc_camioneta || operativo.alcoholemia_positiva_camioneta || operativo.actas_ruido_camioneta) {
         lines.push(``);
-        lines.push(`🛻 *SANCIONES - CAMIONETAS*`);
+        lines.push(`🛻 *CAMIONETAS*`);
         lines.push(`• Actas Simples: ${operativo.actas_simples_camioneta || 0}`);
         lines.push(`• Retención por doc: ${operativo.retencion_doc_camioneta || 0}`);
         lines.push(`• Alcoholemia (+): ${operativo.alcoholemia_positiva_camioneta || 0}`);
@@ -147,7 +147,7 @@ export function generateReportText(operativo) {
 
     if (operativo.actas_simples_colectivo || operativo.retencion_doc_colectivo || operativo.alcoholemia_positiva_colectivo || operativo.actas_ruido_colectivo) {
         lines.push(``);
-        lines.push(`🚌 *SANCIONES - COLECTIVOS*`);
+        lines.push(`🚌 *COLECTIVOS*`);
         lines.push(`• Actas Simples: ${operativo.actas_simples_colectivo || 0}`);
         lines.push(`• Retención por doc: ${operativo.retencion_doc_colectivo || 0}`);
         lines.push(`• Alcoholemia (+): ${operativo.alcoholemia_positiva_colectivo || 0}`);
